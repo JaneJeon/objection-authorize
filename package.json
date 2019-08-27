@@ -1,0 +1,38 @@
+{
+  "name": "objection-authorize",
+  "version": "0.1.0",
+  "description": "\"magic\" authorization integrated with objection.js",
+  "keywords": [
+    "objection",
+    "objection.js",
+    "plugin",
+    "authorization",
+    "auth",
+    "authz",
+    "access control",
+    "rbac",
+    "roles",
+    "acl"
+  ],
+  "main": "index.js",
+  "repository": "JaneJeon/objection-authorize",
+  "author": "Jane Jeon <JaneJeon9719@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "test": "jest --passWithNoTests"
+  },
+  "dependencies": {
+    "http-assert": "^1.4.1"
+  },
+  "peerDependencies": {
+    "objection": "^1.X"
+  },
+  "devDependencies": {
+    "jest": "^24.9.0",
+    "prettier": "^1.18.2",
+    "role-acl": "^3.3.6"
+  },
+  "prettier": {
+    "semi": false
+  }
+}
