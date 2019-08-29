@@ -26,7 +26,7 @@
   "license": "MIT",
   "scripts": {
     "test": "jest --coverage",
-    "coverage": "nyc report --temp-directory=coverage --reporter=text-lcov | coveralls",
+    "coverage": "cat ./coverage/lcov.info | coveralls",
     "lint:prettier": "prettier --write"
   },
   "husky": {
@@ -41,12 +41,6 @@
   "prettier": {
     "semi": false
   },
-  "jest": {
-    "reporters": [
-      "default",
-      "jest-junit"
-    ]
-  },
   "dependencies": {
     "http-assert": "^1.4.1"
   },
@@ -58,7 +52,6 @@
     "jest-junit": "^8.0.0",
     "knex": "^0.19.2",
     "lint-staged": "^9.2.4",
-    "nyc": "^14.1.1",
     "objection": "^1.6.9",
     "prettier": "^1.18.2",
     "role-acl": "^3.3.6",
