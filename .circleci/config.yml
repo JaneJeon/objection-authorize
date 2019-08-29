@@ -24,12 +24,9 @@ jobs:
             - node_modules
           key: v1-dependencies-{{ checksum "yarn.lock" }}
 
-      - run:
-          environment:
-            JEST_JUNIT_OUTPUT: reports/junit/js-test-results.xml
-          command: yarn test --ci --runInBand --reporters=default --reporters=jest-junit
+      - run: yarn test --ci --runInBand --reporters=default --reporters=jest-junit
 
       - store_test_results:
-          path: reports/junit
+          path: junit.xml
 
       - run: yarn coverage
