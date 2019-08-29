@@ -164,5 +164,8 @@ describe("objection-authorize", () => {
   describe("when using custom defaultRole", () => {
     const acl = new RoleAcl({ user, default: anonymous })
     class User extends plugin(acl, { defaultRole: "default" })(BaseModel) {}
+    // TODO:
   })
+
+  // TODO: add $query() and $relatedQuery() tests
 })
