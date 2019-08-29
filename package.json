@@ -1,6 +1,6 @@
 {
   "name": "objection-authorize",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "\"magic\" authorization integrated with objection.js",
   "keywords": [
     "objection",
@@ -25,8 +25,8 @@
   "author": "Jane Jeon <JaneJeon9719@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "test": "nyc jest",
-    "coverage": "nyc report --reporter=text-lcov | coveralls",
+    "test": "jest --coverage",
+    "coverage": "nyc report --temp-directory=coverage --reporter=text-lcov | coveralls",
     "lint:prettier": "prettier --write"
   },
   "husky": {
