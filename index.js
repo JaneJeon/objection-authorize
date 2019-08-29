@@ -1,11 +1,13 @@
 const assert = require("http-assert")
 
-module.exports = (opts = { defaultRole: "anonymous" }) => {
-  if (!opts.acl) throw new Error("opts.acl is a required parameter!")
-  if (typeof opts.acl.can != "function")
+module.exports = (acl, opts) => {
+  if (!acl) throw new Error("acl is a required parameter!")
+  if (typeof acl.can != "function")
     throw new Error(
-      "you likely passed the grants object directly instead of the access control instnace"
+      "did you pass the grants object directly instead of the access control instnace?"
     )
+
+  opts = Object.assign({ defaultRole: "anonymous" }, opts)
 
   return Model => {
     return class extends Model {
@@ -23,48 +25,39 @@ module.exports = (opts = { defaultRole: "anonymous" }) => {
       static get QueryBuilder() {
         return class extends Model.QueryBuilder {
           // wrappers around acl, querybuilder, and model
-          _getAccess(action, body) {
+          _checkAccess(action, body) {
             const { user, resource } = this.context()
 
+            // _checkAccess may be called even outside of authorization context
             if (user && resource) {
-              // return the access control result
-              return (
-                opts.acl
-                  .can(user.role)
-                  .execute(action)
-                  .context(Object.assign(resource, { req: { user, body } }))
-                  // resource name defaults to the model class's name.
-                  // TODO: provide option for this
-                  .on(this.modelClass().name)
-              )
+              const access = acl
+                .can(user.role)
+                .execute(action)
+                .context(Object.assign(resource, { req: { user, body } }))
+                // resource name defaults to the model class's name.
+                // TODO: provide option for this
+                .on(this.modelClass().name)
+
+              // authorize request
+              assert(access.granted, user.role == opts.defaultRole ? 401 : 403)
+
+              return access
             }
-          }
-
-          _checkAccess(access) {
-            if (access)
-              assert(
-                access.granted,
-                this.context().user.role == opts.defaultRole ? 401 : 403
-              )
-
-            // for chaining
-            return this
           }
 
           // a magic method that schedules the actual authorization logic to be called
           // later down the line when the "action method" (insert/patch/delete) is called
           authorize(
             user = { role: opts.defaultRole },
-            resource = this.context().instance
+            resource = this.context().instance || {}
           ) {
             return this.mergeContext({ user, resource })
               .runBefore((result, query) => {
                 // this is run AFTER the query has been completely built.
                 // In other words, the query already checked create/update/delete access
                 // by this point, and the only thing to check now is the read access
-                if (query.isRead()) {
-                  const readAccess = query._getAccess("read")
-                  query._checkAccess(readAccess)
+                if (query.isFind()) {
+                  const readAccess = query._checkAccess("read")
 
                   // store the read access just in case
                   query.mergeContext({ readAccess })
@@ -80,7 +73,7 @@ module.exports = (opts = { defaultRole: "anonymous" }) => {
                 if (!(isArray || isObj)) return result
 
                 const readAccess =
-                  query.context().readAccess || query._getAccess("read")
+                  query.context().readAccess || query._checkAccess("read")
 
                 // TODO: pick
                 return isArray
@@ -99,9 +92,9 @@ module.exports = (opts = { defaultRole: "anonymous" }) => {
           // automatically checks if you can create this resource, and if yes,
           // restricts the body object to only the fields they're allowed to set
           insert(body) {
-            const access = this._getAccess("create", body)
+            const access = this._checkAccess("create", body)
 
-            return this._checkAccess(access).patch(
+            return super.insert(
               // when authorize() isn't called, access will be empty
               access ? access.filter(body) : body
             )
@@ -110,18 +103,16 @@ module.exports = (opts = { defaultRole: "anonymous" }) => {
           // automatically checks if you can update this resource, and if yes,
           // restricts the body object to only the fields they're allowed to set
           patch(body) {
-            const access = this._getAccess("update", body)
+            const access = this._checkAccess("update", body)
 
-            return this._checkAccess(access).patch(
-              access ? access.filter(body) : body
-            )
+            return super.patch(access ? access.filter(body) : body)
           }
 
           // automatically checks if you can delete this resource
           delete() {
-            const access = this._getAccess("delete")
+            const access = this._checkAccess("delete")
 
-            return this._checkAccess(access).delete()
+            return super.delete()
           }
         }
       }
