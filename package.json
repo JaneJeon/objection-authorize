@@ -41,11 +41,18 @@
   "prettier": {
     "semi": false
   },
+  "jest": {
+    "reporters": [
+      "default",
+      "jest-junit"
+    ]
+  },
   "dependencies": {
     "http-assert": "^1.4.1"
   },
   "devDependencies": {
     "@types/jest": "^24.0.18",
+    "coveralls": "^3.0.6",
     "husky": "^3.0.4",
     "jest": "^24.9.0",
     "knex": "^0.19.2",
