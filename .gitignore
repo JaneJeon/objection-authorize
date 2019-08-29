@@ -75,3 +75,6 @@ sw.*
 
 # test sqlite3 database used for knex
 test.db
+
+# I only use junit reporter for circleci
+junit.xml
