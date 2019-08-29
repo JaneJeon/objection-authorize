@@ -72,3 +72,6 @@ sw.*
 
 # Mac OSX
 .DS_Store
+
+# test sqlite3 database used for knex
+test.db

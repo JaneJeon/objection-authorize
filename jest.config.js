@@ -1,0 +1,3 @@
+{
+  reporters: ["default", "jest-junit"]
+}

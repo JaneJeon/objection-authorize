@@ -2,9 +2,13 @@ const assert = require("http-assert")
 
 module.exports = (opts = { defaultRole: "anonymous" }) => {
   if (!opts.acl) throw new Error("opts.acl is a required parameter!")
+  if (typeof opts.acl.can != "function")
+    throw new Error(
+      "you likely passed the grants object directly instead of the access control instnace"
+    )
 
-  return Model =>
-    class extends Model {
+  return Model => {
+    return class extends Model {
       // inject instance context
       $query(trx) {
         return super.$query(trx).mergeContext({ instance: this })
@@ -20,30 +24,27 @@ module.exports = (opts = { defaultRole: "anonymous" }) => {
         return class extends Model.QueryBuilder {
           // wrappers around acl, querybuilder, and model
           _getAccess(action, body) {
-            const { req, resource } = this.context()
-            if (!(req && resource)) return
+            const { user, resource } = this.context()
 
-            // prioritize the body that's passed in.
-            // Additionally, since we constructed a new "req" object in authorize(),
-            // messing with req's properties won't affect the "actual" request object
-            if (body) req.body = body
-
-            // return the access control result
-            return (
-              opts.acl
-                // user role provided by authorize() even for unauthenticated requests
-                .can(req.user.role)
-                .execute(action)
-                .with(Object.assign(resource, { req }))
-                .on(this.modelClass().name)
-            )
+            if (user && resource) {
+              // return the access control result
+              return (
+                opts.acl
+                  .can(user.role)
+                  .execute(action)
+                  .context(Object.assign(resource, { req: { user, body } }))
+                  // resource name defaults to the model class's name.
+                  // TODO: provide option for this
+                  .on(this.modelClass().name)
+              )
+            }
           }
 
           _checkAccess(access) {
             if (access)
               assert(
                 access.granted,
-                this.context().req.user.role == opts.defaultRole ? 401 : 403
+                this.context().user.role == opts.defaultRole ? 401 : 403
               )
 
             // for chaining
@@ -52,46 +53,51 @@ module.exports = (opts = { defaultRole: "anonymous" }) => {
 
           // a magic method that schedules the actual authorization logic to be called
           // later down the line when the "action method" (insert/patch/delete) is called
-          authorize(req, resource, skipFilter) {
-            if (!req)
-              throw new Error("authorization failed: no request specified")
+          authorize(
+            user = { role: opts.defaultRole },
+            resource = this.context().instance
+          ) {
+            return this.mergeContext({ user, resource })
+              .runBefore((result, query) => {
+                // this is run AFTER the query has been completely built.
+                // In other words, the query already checked create/update/delete access
+                // by this point, and the only thing to check now is the read access
+                if (query.isRead()) {
+                  const readAccess = query._getAccess("read")
+                  query._checkAccess(readAccess)
 
-            const user = req.user || { role: opts.defaultRole }
+                  // store the read access just in case
+                  query.mergeContext({ readAccess })
+                }
 
-            // in case of create, resource is necessarily empty, and we don't want
-            // to assign it req.body since it will repeat indefinitely!!!
-            resource = resource || this.context().instance || {}
+                return result
+              })
+              .runAfter((result, query) => {
+                const isArray = Array.isArray(result)
+                const isObj = typeof result === "object"
 
-            // limit the amount of context to body and user to hopefully reduce
-            // the amount of shit that needs to be deep cloned.
-            this.mergeContext({ req: { user, body: req.body }, resource })
+                // there's no result object(s) to filter here
+                if (!(isArray || isObj)) return result
 
-            // we always check read access because of the returning result
-            const access = this._getAccess("read")
+                const readAccess =
+                  query.context().readAccess || query._getAccess("read")
 
-            // you generally don't want to skip filter
-            if (!skipFilter)
-              this.runAfter(result =>
-                // if we're fetching multiple resources, the result will be an array.
-                // While access.filter() accepts arrays, we need to invoke any $formatJson()
-                // hooks by individually calling toJSON() on individual models since:
-                // 1. arrays don't have toJSON() method,
-                // 2. objection-visibility doesn't work without calling $formatJson()
-                Array.isArray(result)
-                  ? result.map(model => access.filter(model.toJSON()))
-                  : // when doing DELETE operations, the result will be a number,
-                  // in which case access.filter balks so we just return that number instead.
-                  // Note that we're assuming if the result is an object, then it must be
-                  // an instance of Model, 'cause otherwise toJSON() won't be defined!!
-                  typeof result === "object"
-                  ? access.filter(result.toJSON())
-                  : result
-              )
-
-            // check if you're even allowed to read
-            return this._checkAccess(access)
+                // TODO: pick
+                return isArray
+                  ? // if we're fetching multiple resources, the result will be an array.
+                    // While access.filter() accepts arrays, we need to invoke any $formatJson()
+                    // hooks by individually calling toJSON() on individual models since:
+                    // 1. arrays don't have toJSON() method,
+                    // 2. objection-visibility doesn't work without calling $formatJson()
+                    result.map(model => readAccess.filter(model.toJSON()))
+                  : // here, we're assuming that if the result is an object, then it must be
+                    // an instance of Model, because otherwise toJSON() won't be defined!!
+                    readAccess.filter(result.toJSON())
+              })
           }
 
+          // automatically checks if you can create this resource, and if yes,
+          // restricts the body object to only the fields they're allowed to set
           insert(body) {
             const access = this._getAccess("create", body)
 
@@ -101,6 +107,8 @@ module.exports = (opts = { defaultRole: "anonymous" }) => {
             )
           }
 
+          // automatically checks if you can update this resource, and if yes,
+          // restricts the body object to only the fields they're allowed to set
           patch(body) {
             const access = this._getAccess("update", body)
 
@@ -109,6 +117,7 @@ module.exports = (opts = { defaultRole: "anonymous" }) => {
             )
           }
 
+          // automatically checks if you can delete this resource
           delete() {
             const access = this._getAccess("delete")
 
@@ -117,4 +126,5 @@ module.exports = (opts = { defaultRole: "anonymous" }) => {
         }
       }
     }
+  }
 }
