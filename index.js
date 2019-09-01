@@ -43,6 +43,7 @@ module.exports = (acl, opts) => {
           // wrappers around acl, querybuilder, and model
           _checkAccess(action, body) {
             const { user, resource } = this.context()
+            body = body || resource
 
             // _checkAccess may be called even outside of authorization context
             if (user && resource) {
