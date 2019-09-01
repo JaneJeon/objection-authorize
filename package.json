@@ -1,6 +1,6 @@
 {
   "name": "objection-authorize",
-  "version": "0.2.4",
+  "version": "0.3.0",
   "description": "\"magic\" authorization integrated with objection.js",
   "keywords": [
     "objection",
@@ -25,8 +25,10 @@
   "author": "Jane Jeon <JaneJeon9719@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "test": "jest --coverage",
-    "coverage": "cat ./coverage/lcov.info | coveralls",
+    "test": "jest",
+    "test:ci": "yarn test --coverage --ci --runInBand --reporters=default --reporters=jest-junit",
+    "test:watch": "yarn test --watch",
+    "coverage": "if is-ci; then cat ./coverage/lcov.info | coveralls; fi",
     "lint:prettier": "prettier --write"
   },
   "husky": {
@@ -48,11 +50,13 @@
     "@types/jest": "^24.0.18",
     "coveralls": "^3.0.6",
     "husky": "^3.0.4",
+    "is-ci": "^2.0.0",
     "jest": "^24.9.0",
     "jest-junit": "^8.0.0",
     "knex": "^0.19.2",
     "lint-staged": "^9.2.4",
     "objection": "^1.6.9",
+    "objection-visibility": "^0.4.0",
     "prettier": "^1.18.2",
     "role-acl": "^3.3.6",
     "sqlite3": "^4.1.0"

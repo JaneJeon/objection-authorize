@@ -24,7 +24,7 @@ jobs:
             - node_modules
           key: v1-dependencies-{{ checksum "yarn.lock" }}
 
-      - run: yarn test --ci --runInBand --reporters=default --reporters=jest-junit
+      - run: yarn test:ci
 
       - store_test_results:
           path: junit.xml

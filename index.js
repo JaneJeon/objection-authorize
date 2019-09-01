@@ -1,5 +1,21 @@
 const assert = require("http-assert")
 
+// first pick the fields, and then filter them,
+// as per https://github.com/oscaroox/objection-visibility
+const filterModel = (model, attributes = []) => {
+  const pickFields = attributes.filter(
+    field => field != "*" && !field.startsWith("!")
+  )
+  const omitFields = attributes
+    .filter(field => field.startsWith("!"))
+    .map(field => field.substr(1))
+
+  if (pickFields.length) model.$pick(pickFields)
+  if (omitFields.length) model.$omit(omitFields)
+
+  return model
+}
+
 module.exports = (acl, opts) => {
   if (!acl) throw new Error("acl is a required parameter!")
   if (typeof acl.can != "function")
@@ -75,17 +91,18 @@ module.exports = (acl, opts) => {
                 const readAccess =
                   query.context().readAccess || query._checkAccess("read")
 
-                // TODO: pick
                 return isArray
                   ? // if we're fetching multiple resources, the result will be an array.
                     // While access.filter() accepts arrays, we need to invoke any $formatJson()
                     // hooks by individually calling toJSON() on individual models since:
                     // 1. arrays don't have toJSON() method,
                     // 2. objection-visibility doesn't work without calling $formatJson()
-                    result.map(model => readAccess.filter(model.toJSON()))
+                    result.map(model =>
+                      filterModel(model, readAccess.attributes)
+                    )
                   : // here, we're assuming that if the result is an object, then it must be
                     // an instance of Model, because otherwise toJSON() won't be defined!!
-                    readAccess.filter(result.toJSON())
+                    filterModel(result, readAccess.attributes)
               })
           }
 

@@ -1,5 +1,6 @@
 const plugin = require(".")
 const { Model } = require("objection")
+const visibility = require("objection-visibility").default
 const knexjs = require("knex")
 const RoleAcl = require("role-acl")
 
@@ -11,9 +12,13 @@ const knex = knexjs({
 
 Model.knex(knex)
 
-class BaseModel extends Model {
+class BaseModel extends visibility(Model) {
   static get tableName() {
     return "users"
+  }
+
+  static get hidden() {
+    return ["id"]
   }
 }
 
