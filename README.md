@@ -92,7 +92,8 @@ const opts = {
   // user IS the user that requested the query. The function takes in (user, result) and returns
   // a bolean. For example, you might use the function when admins can change a user's details,
   // but the changed user *might* be the admin itself or it could be someone different.
-  // To ensure the admin only sees the email address when the changed user is actually the admin itself, you might want to pass a function checking that the requesting user IS the changed user:
+  // To ensure the admin only sees the email address when the changed user is actually the admin
+  // itself, you might want to pass a function checking that the requesting user IS the changed user:
   // (user, result) => user instanceof Model && isEqual(user.$id(), result.$id())
   userFromResult: false
 }

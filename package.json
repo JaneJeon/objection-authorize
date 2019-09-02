@@ -1,6 +1,6 @@
 {
   "name": "objection-authorize",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "\"magic\" authorization integrated with objection.js",
   "keywords": [
     "objection",
