@@ -62,6 +62,7 @@ module.exports = (acl, opts) => {
               .execute(action)
               .context(
                 Object.assign(
+                  {},
                   resource,
                   { req: { user, body } },
                   opts.resourceAugments
