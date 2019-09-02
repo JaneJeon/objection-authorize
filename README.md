@@ -19,12 +19,12 @@ acl
 Plugging in `objection-authorize` to work with your existing authorization setup is as easy as follows:
 
 ```js
-const AccessControl = require("role-acl") // or
-const AccessControl = require("accesscontrol")
+const AccessControl = require('role-acl') // or
+const AccessControl = require('accesscontrol')
 const acl = new AccessControl(grants) // the grants object
 
-const { Model } = require("objection")
-const authorize = require("objection-authorize")(acl)
+const { Model } = require('objection')
+const authorize = require('objection-authorize')(acl)
 
 class Post extends authorize(Model) {
   // that's it! This is just a regular objection.js model class
@@ -36,9 +36,9 @@ Then, you can take your resource model and authorize requests like so:
 ```js
 const post = await Post.query()
   .authorize(user)
-  .create({ title: "hello!" }) // authorize a POST request
+  .create({ title: 'hello!' }) // authorize a POST request
 await Post.query()
-  .authorize(user, { authorId: "jim" })
+  .authorize(user, { authorId: 'jim' })
   .findById(1) // authorize a GET request
 await post
   .$query()
@@ -65,15 +65,43 @@ For more examples, [see here](https://github.com/JaneJeon/objection-authorize/bl
 You can pass an options object as the second parameter in `authorize(acl, opts)`. The options objects is structured as follows (the given values are the default):
 
 ```js
-{
-  defaultRole: "anonymous" // when the user object is empty, a "default" user object will be created with the specified role
+const opts = {
+  // when the user object is empty, a "default" user object will be created with the specified role
+  defaultRole: 'anonymous',
+  // error code thrown when an unauthenticated user is not allowed to access a resource
+  unauthenticatedErrorCode: 401,
+  // error code thrown when an authenticated user is not allowed to access a resource
+  unauthorizedErrorCode: 403,
+  // extract resource name from a model class. The default is its raw name (NOT lowercased).
+  // for instance, if you're using a `Post` model class, your resource name would be `Post`.
+  resourceName: model => model.name,
+  // since neither role-acl nor accesscontrol allow you to *just* check the request body
+  // (they don't parse the $.foo.bar syntax for the ACL rule keys), if you want to check
+  // only the request, you need to put custom properties.
+  // So the default below allows checks such as {Fn: 'EQUALS', args: {true: req.body.confirm}}
+  // by attaching the "true" and "false" values as part of the property of the resource!!
+  // However, note that these properties will *overwrite* the properties of the resource,
+  // so be sure to set this to null, {} or whatever when you're running on queries on such resource
+  resourceAugments: { true: true, false: false },
+  // there might be situations where a query (possibly) changes the requesting user itself.
+  // In that case, we need to update the user context in order to get accurate read access
+  // on the returning result. For instance, if other people can't read a user's email address,
+  // when you create/update a user, the returning result might have the email address filtered out
+  // because the original user context was an anonymous user.
+  // Set to true to "refresh" the user context, or pass a function to *ensure* that the changed
+  // user IS the user that requested the query. The function takes in (user, result) and returns
+  // a bolean. For example, you might use the function when admins can change a user's details,
+  // but the changed user *might* be the admin itself or it could be someone different.
+  // To ensure the admin only sees the email address when the changed user is actually the admin itself, you might want to pass a function checking that the requesting user IS the changed user:
+  // (user, result) => user instanceof Model && isEqual(user.$id(), result.$id())
+  userFromResult: false
 }
 ```
 
-Additionally, in your grants object, be sure to name your resources as the same as the class name. For instance, if you're using a `Post` model class, then in your grants, you should name your resource `Post` as well.
+Additionally, you can override the settings on an individual query basis. Just pass the `opts` as the 3rd parameter of `authorize(user, resource, opts)` to override the "global" opts that you set while initializing the plugin _just_ for that query.
 
 ## Authorizing requests
 
-This works with any router framework (express/koa/fastify/etc) - all you need to do is to provide the requesting user (for example, `req.user` might be filled in by passport).
+This works with any router framework (express/koa/fastify/etc) - all you need to do is to provide the requesting user (for example, `req.user` in express).
 
 Here's an example of [how the plugin works with express](https://github.com/JaneJeon/express-objection-starter/blob/master/routes/users.js)

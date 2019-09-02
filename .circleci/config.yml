@@ -17,14 +17,16 @@ jobs:
             # fallback to using the latest cache if no exact match is found
             - v1-dependencies-
 
-      - run: yarn
+      - run: yarn --frozen-lockfile
 
       - save_cache:
           paths:
             - node_modules
           key: v1-dependencies-{{ checksum "yarn.lock" }}
 
-      - run: yarn test:ci
+      - run: yarn lint:check
+
+      - run: yarn test --coverage --ci --runInBand --reporters=default --reporters=jest-junit --forceExit
 
       - store_test_results:
           path: junit.xml

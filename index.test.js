@@ -1,12 +1,12 @@
-const plugin = require(".")
-const { Model } = require("objection")
-const visibility = require("objection-visibility").default
-const knexjs = require("knex")
-const RoleAcl = require("role-acl")
+const plugin = require('.')
+const { Model } = require('objection')
+const visibility = require('objection-visibility').default
+const knexjs = require('knex')
+const RoleAcl = require('role-acl')
 
 const knex = knexjs({
-  client: "sqlite3",
-  connection: { filename: ":memory:" },
+  client: 'sqlite3',
+  connection: { filename: ':memory:' },
   useNullAsDefault: true
 })
 
@@ -14,11 +14,11 @@ Model.knex(knex)
 
 class BaseModel extends visibility(Model) {
   static get tableName() {
-    return "users"
+    return 'users'
   }
 
   static get hidden() {
-    return ["id"]
+    return ['id']
   }
 }
 
@@ -26,75 +26,76 @@ class BaseModel extends visibility(Model) {
 const anonymous = {
   grants: [
     {
-      resource: "User",
-      action: "read",
-      attributes: ["*", "!email"]
+      resource: 'User',
+      action: 'read',
+      attributes: ['*', '!email']
     },
     {
-      resource: "User",
-      action: "create",
-      attributes: ["*", "!id"]
+      resource: 'User',
+      action: 'create',
+      attributes: ['*', '!id']
     }
   ]
 }
 const user = {
   grants: [
     {
-      resource: "User",
-      action: "read",
-      attributes: ["*", "!email"]
+      resource: 'User',
+      action: 'read',
+      attributes: ['*', '!email']
     },
     {
-      resource: "User",
-      action: "read",
-      attributes: ["email"],
-      condition: { Fn: "EQUALS", args: { id: "$.req.user.id" } }
+      resource: 'User',
+      action: 'read',
+      attributes: ['email'],
+      condition: { Fn: 'EQUALS', args: { id: '$.req.user.id' } }
     },
     {
-      resource: "User",
-      action: "update",
-      attributes: ["*", "!id"],
-      condition: { Fn: "EQUALS", args: { id: "$.req.user.id" } }
+      resource: 'User',
+      action: 'update',
+      attributes: ['*', '!id'],
+      condition: { Fn: 'EQUALS', args: { id: '$.req.user.id' } }
     },
     {
-      resource: "User",
-      action: "delete",
-      condition: { Fn: "EQUALS", args: { id: "$.req.user.id" } }
+      resource: 'User',
+      action: 'delete',
+      condition: { Fn: 'EQUALS', args: { id: '$.req.user.id' } }
     }
   ]
 }
 
-describe("objection-authorize", () => {
+describe('objection-authorize', () => {
   beforeAll(async () => {
-    return knex.schema.createTable("users", table => {
+    return knex.schema.createTable('users', table => {
       table.increments()
-      table.text("username")
-      table.text("email")
+      table.text('username')
+      table.text('email')
+      table.text('role')
     })
   })
 
-  test("requires acl", () => {
+  test('requires acl', () => {
     expect(() => plugin()(BaseModel)).toThrow()
   })
 
-  test("errors when you pass the grants object directly", () => {
+  test('errors when you pass the grants object directly', () => {
     expect(() => plugin({ user, anonymous })(BaseModel)).toThrow()
   })
 
-  describe("when using default options", () => {
+  describe('when using default options', () => {
     const acl = new RoleAcl({ user, anonymous })
     class User extends plugin(acl)(BaseModel) {}
 
     let testUser
-    const userData = { username: "hello", email: "foo@bar.com" }
+    const userData = { username: 'hello', email: 'foo@bar.com', role: 'user' }
 
-    describe("C", () => {
-      test("works", async () => {
+    describe('C', () => {
+      test('works', async () => {
         // create test user
         testUser = await User.query()
-          .authorize()
+          .authorize(null, null, { userFromResult: true })
           .insert(userData)
-        testUser.role = "user"
+        expect(testUser.email).toBeDefined()
 
         // you can't create user while logged in
         let error
@@ -109,8 +110,8 @@ describe("objection-authorize", () => {
       })
     })
 
-    describe("R", () => {
-      test("works", async () => {
+    describe('R', () => {
+      test('works', async () => {
         // shouldn't be able to read email by default
         let result = await User.query()
           .authorize()
@@ -125,14 +126,14 @@ describe("objection-authorize", () => {
       })
     })
 
-    describe("U", () => {
-      test("works", async () => {
+    describe('U', () => {
+      test('works', async () => {
         // an anonymous user shouldn't be able to update registered user's details
         let error
         try {
           await User.query()
             .authorize(undefined, testUser)
-            .patch({ username: "foo" })
+            .patch({ username: 'foo' })
         } catch (err) {
           error = err
         }
@@ -141,17 +142,17 @@ describe("objection-authorize", () => {
         // but a user should be able to update their own details
         await User.query()
           .authorize(testUser, { id: 1 })
-          .patch({ username: "bar" })
+          .patch({ username: 'bar' })
       })
     })
 
-    describe("D", () => {
-      test("works", async () => {
+    describe('D', () => {
+      test('works', async () => {
         // you shouldn't be able to delete others' accounts
         let error
         try {
           await User.query()
-            .authorize({ role: "user", id: 2 }, testUser)
+            .authorize({ role: 'user', id: 2 }, testUser)
             .deleteById(1)
         } catch (err) {
           error = err
@@ -166,9 +167,10 @@ describe("objection-authorize", () => {
     })
   })
 
-  describe("when using custom defaultRole", () => {
+  describe('when using custom defaultRole', () => {
     const acl = new RoleAcl({ user, default: anonymous })
-    class User extends plugin(acl, { defaultRole: "default" })(BaseModel) {}
+    // eslint-disable-next-line no-unused-vars
+    class User extends plugin(acl, { defaultRole: 'default' })(BaseModel) {}
     // TODO:
   })
 

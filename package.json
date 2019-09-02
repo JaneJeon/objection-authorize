@@ -1,6 +1,6 @@
 {
   "name": "objection-authorize",
-  "version": "0.3.1",
+  "version": "0.5.0",
   "description": "\"magic\" authorization integrated with objection.js",
   "keywords": [
     "objection",
@@ -26,22 +26,49 @@
   "license": "MIT",
   "scripts": {
     "test": "jest",
-    "test:ci": "yarn test --coverage --ci --runInBand --reporters=default --reporters=jest-junit",
     "test:watch": "yarn test --watch",
     "coverage": "if is-ci; then cat ./coverage/lcov.info | coveralls; fi",
-    "lint:prettier": "prettier --write"
+    "lint": "run-p lint:all:*",
+    "lint:eslint": "eslint --fix --cache",
+    "lint:prettier": "prettier --write",
+    "lint:all:eslint": "yarn lint:eslint .",
+    "lint:all:prettier": "yarn lint:prettier '**/*.{js,json,md,yml,yaml}'",
+    "lint:check": "run-p lint:check:*",
+    "lint:check:eslint": "eslint . --cache",
+    "lint:check:prettier": "prettier --check '**/*.{js,json,md,yml,yaml}'"
   },
   "husky": {
-    "pre-commit": "lint-staged"
+    "pre-commit": "lint-staged",
+    "pre-push": "yarn test"
   },
   "lint-staged": {
-    "*.{js,json,md,yml,yaml}": [
+    "*.{json,md,yml,yaml}": [
+      "yarn lint:prettier",
+      "git add"
+    ],
+    "*.js": [
+      "yarn lint:eslint",
       "yarn lint:prettier",
       "git add"
     ]
   },
+  "eslintConfig": {
+    "env": {
+      "node": true,
+      "es6": true,
+      "jest": true
+    },
+    "extends": [
+      "plugin:prettier/recommended",
+      "eslint:recommended"
+    ],
+    "parserOptions": {
+      "ecmaVersion": 2018
+    }
+  },
   "prettier": {
-    "semi": false
+    "semi": false,
+    "singleQuote": true
   },
   "dependencies": {
     "http-assert": "^1.4.1"
@@ -49,12 +76,16 @@
   "devDependencies": {
     "@types/jest": "^24.0.18",
     "coveralls": "^3.0.6",
+    "eslint": "^6.3.0",
+    "eslint-config-prettier": "^6.1.0",
+    "eslint-plugin-prettier": "^3.1.0",
     "husky": "^3.0.4",
     "is-ci": "^2.0.0",
     "jest": "^24.9.0",
     "jest-junit": "^8.0.0",
     "knex": "^0.19.2",
     "lint-staged": "^9.2.4",
+    "npm-run-all": "^4.1.5",
     "objection": "^1.6.9",
     "objection-visibility": "^0.4.0",
     "prettier": "^1.18.2",
