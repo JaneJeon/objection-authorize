@@ -62,44 +62,63 @@ For more examples, [see here](https://github.com/JaneJeon/objection-authorize/bl
 
 ## Configuration
 
-You can pass an options object as the second parameter in `authorize(acl, opts)`. The options objects is structured as follows (the given values are the default):
+You can pass an options object as the second parameter in `objectionAuthorize(acl, opts)` when initializing the plugin. The options objects is structured as follows (the given values are the default):
 
 ```js
 const opts = {
-  // when the user object is empty, a "default" user object will be created with the specified role
   defaultRole: 'anonymous',
-  // error code thrown when an unauthenticated user is not allowed to access a resource
   unauthenticatedErrorCode: 401,
-  // error code thrown when an authenticated user is not allowed to access a resource
   unauthorizedErrorCode: 403,
-  // extract resource name from a model class. The default is its raw name (NOT lowercased).
-  // for instance, if you're using a `Post` model class, your resource name would be `Post`.
   resourceName: model => model.name,
-  // since neither role-acl nor accesscontrol allow you to *just* check the request body
-  // (they don't parse the $.foo.bar syntax for the ACL rule keys), if you want to check
-  // only the request, you need to put custom properties.
-  // So the default below allows checks such as {Fn: 'EQUALS', args: {true: req.body.confirm}}
-  // by attaching the "true" and "false" values as part of the property of the resource!!
-  // However, note that these properties will *overwrite* the properties of the resource,
-  // so be sure to set this to null, {} or whatever when you're running on queries on such resource
   resourceAugments: { true: true, false: false },
-  // there might be situations where a query (possibly) changes the requesting user itself.
-  // In that case, we need to update the user context in order to get accurate read access
-  // on the returning result. For instance, if other people can't read a user's email address,
-  // when you create/update a user, the returning result might have the email address filtered out
-  // because the original user context was an anonymous user.
-  // Set to true to "refresh" the user context, or pass a function to *ensure* that the changed
-  // user IS the user that requested the query. The function takes in (user, result) and returns
-  // a bolean. For example, you might use the function when admins can change a user's details,
-  // but the changed user *might* be the admin itself or it could be someone different.
-  // To ensure the admin only sees the email address when the changed user is actually the admin
-  // itself, you might want to pass a function checking that the requesting user IS the changed user:
-  // (user, result) => user instanceof Model && isEqual(user.$id(), result.$id())
   userFromResult: false
 }
 ```
 
 Additionally, you can override the settings on an individual query basis. Just pass the `opts` as the 3rd parameter of `authorize(user, resource, opts)` to override the "global" opts that you set while initializing the plugin _just_ for that query.
+
+For explanations on what each option does, see below:
+
+### defaultRole
+
+When the user object is empty, a "default" user object will be created with the `defaultRole`.
+
+### unauthenticatedErrorCode
+
+Error code thrown when an unauthenticated user is not allowed to access a resource.
+
+### unauthorizedErrorCode
+
+Error code thrown when an authenticated user is not allowed to access a resource.
+
+### resourceName
+
+A function to extract resource name from a model class. The default is its raw name (**NOT** lowercased). For instance, if you're using a `Post` model class, your resource name would be `Post`.
+
+### resourceArguments
+
+Since neither role-acl nor accesscontrol allow you to _just_ check the request body (they don't parse the `$.foo.bar` syntax for the ACL rule keys), if you want to check _only_ the request, you need to put custom properties.
+
+So the default allows checks such as `{Fn: 'EQUALS', args: {true: $.req.body.confirm}}` (useful when trying to require that a user confirm deletion of a resource, for example) by attaching the "true" and "false" values as part of the property of the resource!!
+
+However, note that these properties will _overwrite_ the properties of the resource, so be sure to set this to null, {} or whatever when you're running on queries on such resource to avoid attribute name collision.
+
+### userFromResult
+
+There might be situations where a query (possibly) changes the requesting user itself. In that case, we need to update the user context in order to get accurate read access on the returning result.
+
+For instance, if other people can't read a user's email address, when you create/update a user, the returning result might have the email address filtered out because the original user context was an anonymous user.
+
+Set to `true` to "refresh" the user context, or pass a function to _ensure_ that the changed user IS the user that requested the query. The function takes in `(user, result)` and returns a `boolean`.
+
+For example, you might use the function when admins can change a user's details, but the changed user _might_ be the admin itself or it could be someone different.
+
+To ensure the admin only sees the email address when the changed user is actually the admin itself, you might want to pass a function checking that the requesting user IS the changed user, like this:
+
+```js
+const fn = (user, result) =>
+  user instanceof Model && isEqual(user.$id(), result.$id())
+```
 
 ## Authorizing requests
 
