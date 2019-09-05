@@ -4,7 +4,7 @@
 
 "Magical" integration with Objection.js to provide baked-in authorization!
 
-It automatically takes away a lot of the manual wiring that you'd need to write if you were to implement your access control on a request/route level, including:
+It automatically takes away a lot of the manual wiring that you'd need to do if you were to implement your access control on a request/route level, including:
 
 - filtering request body
 - checking the user against the resource and the ACL
@@ -60,6 +60,14 @@ await post
 To authorize a request, a user and a resource must be specified. You pass the user as the first parameter of `authorize()`, and the resource as the second parameter.
 
 Additionally, this plugin attempts to load the resource from the model instance, so if you've already fetched a resource and are calling `$query()` or `$relatedQuery()` to build a query, you don't even have to pass the resource object to `authorize()` manually!
+
+```js
+const post = await Post.query().findById(1)
+await post
+  .$query()
+  .authorize(user) // resource param not needed
+  .patch(body)
+```
 
 Furthermore, if you're creating a resource (i.e. `insert()`), then you do not have to specify the resource, though the result from the query will be filtered according to the user's read access.
 
