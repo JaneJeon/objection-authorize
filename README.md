@@ -4,6 +4,13 @@
 
 "Magical" integration with Objection.js to provide baked-in authorization!
 
+It automatically takes away a lot of the manual wiring that you'd need to write if you were to implement your access control on a request/route level, including:
+
+- filtering request body
+- checking the user against the resource and the ACL
+- figuring out _which_ resource to check the user's grants against automatically(!)
+- even filtering the result from a query according to a user's read access!
+
 This plugin supports both `role-acl` and `accesscontrol` modules, along with any authorization framework that uses the following syntax to check access:
 
 ```js
