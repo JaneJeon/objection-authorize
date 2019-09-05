@@ -1,6 +1,6 @@
 {
   "name": "objection-authorize",
-  "version": "0.5.8",
+  "version": "0.5.9",
   "description": "\"magic\" authorization integrated with objection.js",
   "main": "index.js",
   "repository": "JaneJeon/objection-authorize",
@@ -9,7 +9,7 @@
   "scripts": {
     "test": "jest",
     "test:watch": "yarn test --watch",
-    "coverage": "if is-ci; then cat ./coverage/lcov.info | coveralls; fi",
+    "coverage": "is-ci && codecov",
     "lint": "run-p lint:all:*",
     "lint:eslint": "eslint --fix --cache",
     "lint:prettier": "prettier --write",
@@ -57,7 +57,7 @@
   },
   "devDependencies": {
     "@types/jest": "^24.0.18",
-    "coveralls": "^3.0.6",
+    "codecov": "^3.5.0",
     "eslint": "^6.3.0",
     "eslint-config-prettier": "^6.1.0",
     "eslint-plugin-prettier": "^3.1.0",
