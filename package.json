@@ -10,47 +10,29 @@
     "test": "jest",
     "test:watch": "yarn test --watch",
     "coverage": "is-ci && codecov",
-    "lint": "run-p lint:all:*",
-    "lint:eslint": "eslint --fix --cache",
-    "lint:prettier": "prettier --write",
-    "lint:all:eslint": "yarn lint:eslint .",
-    "lint:all:prettier": "yarn lint:prettier '**/*.{js,json,md,yml,yaml}'",
-    "lint:check": "run-p lint:check:*",
-    "lint:check:eslint": "eslint . --cache",
-    "lint:check:prettier": "prettier --check '**/*.{js,json,md,yml,yaml}'"
+    "lint": "standard | snazzy && prettier --check '**/*.{md,json,yml,yaml}'"
   },
   "husky": {
-    "pre-commit": "lint-staged",
-    "pre-push": "yarn test"
+    "hooks": {
+      "pre-commit": "lint-staged",
+      "pre-push": "yarn test"
+    }
   },
   "lint-staged": {
-    "*.{json,md,yml,yaml}": [
-      "yarn lint:prettier",
+    "*.js": [
+      "prettier --write",
+      "standard --fix",
       "git add"
     ],
-    "*.js": [
-      "yarn lint:eslint",
-      "yarn lint:prettier",
+    "*.{json,yml,yaml}": [
+      "prettier --write",
       "git add"
     ]
   },
-  "eslintConfig": {
-    "env": {
-      "node": true,
-      "es6": true,
-      "jest": true
-    },
-    "extends": [
-      "plugin:prettier/recommended",
-      "eslint:recommended"
-    ],
-    "parserOptions": {
-      "ecmaVersion": 2018
-    }
-  },
-  "prettier": {
-    "semi": false,
-    "singleQuote": true
+  "standard": {
+    "env": [
+      "jest"
+    ]
   },
   "dependencies": {
     "http-assert": "^1.4.1"
@@ -58,21 +40,19 @@
   "devDependencies": {
     "@types/jest": "^24.0.18",
     "codecov": "^3.5.0",
-    "eslint": "^6.3.0",
-    "eslint-config-prettier": "^6.1.0",
-    "eslint-plugin-prettier": "^3.1.0",
     "husky": "^3.0.5",
     "is-ci": "^2.0.0",
     "jest": "^24.9.0",
     "jest-junit": "^8.0.0",
     "knex": "^0.19.3",
     "lint-staged": "^9.2.5",
-    "npm-run-all": "^4.1.5",
     "objection": "^1.6.9",
     "objection-visibility": "^0.4.0",
     "prettier": "^1.18.2",
     "role-acl": "^3.3.6",
-    "sqlite3": "^4.1.0"
+    "snazzy": "^8.0.0",
+    "sqlite3": "^4.1.0",
+    "standard": "^14.1.0"
   },
   "keywords": [
     "objection",

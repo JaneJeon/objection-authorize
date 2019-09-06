@@ -2,10 +2,11 @@ const assert = require('http-assert')
 
 module.exports = (acl, opts) => {
   if (!acl) throw new Error('acl is a required parameter!')
-  if (typeof acl.can !== 'function')
+  if (typeof acl.can !== 'function') {
     throw new Error(
       'did you pass the grants object directly instead of the access control instnace?'
     )
+  }
 
   const defaultOpts = {
     defaultRole: 'anonymous',
@@ -22,7 +23,7 @@ module.exports = (acl, opts) => {
       // used to filter model's attributes according to a user's read access.
       // First pick the fields, and then filter them, as per:
       // https://github.com/oscaroox/objection-visibility
-      _filter(attributes = []) {
+      _filter (attributes = []) {
         const pickFields = attributes.filter(
           field => field !== '*' && !field.startsWith('!')
         )
@@ -37,20 +38,20 @@ module.exports = (acl, opts) => {
       }
 
       // inject instance context
-      $query(trx) {
+      $query (trx) {
         return super.$query(trx).mergeContext({ instance: this })
       }
 
-      $relatedQuery(relation, trx) {
+      $relatedQuery (relation, trx) {
         return super
           .$relatedQuery(relation, trx)
           .mergeContext({ instance: this })
       }
 
-      static get QueryBuilder() {
+      static get QueryBuilder () {
         return class extends Model.QueryBuilder {
           // wrappers around acl, querybuilder, and model
-          _checkAccess(action, body) {
+          _checkAccess (action, body) {
             const { user, resource, opts } = this.context()
             body = body || resource
 
@@ -73,7 +74,7 @@ module.exports = (acl, opts) => {
             // authorize request
             assert(
               access.granted,
-              user.role == opts.defaultRole
+              user.role === opts.defaultRole
                 ? opts.unauthenticatedErrorCode
                 : opts.unauthorizedErrorCode
             )
@@ -83,7 +84,7 @@ module.exports = (acl, opts) => {
 
           // THE magic method that schedules the actual authorization logic to be called
           // later down the line when the "action method" (insert/patch/delete) is called
-          authorize(user, resource, optOverride) {
+          authorize (user, resource, optOverride) {
             user = Object.assign({ role: opts.defaultRole }, user)
             resource = resource || this.context().instance || {}
             const requestOpts = Object.assign({}, opts, optOverride)
@@ -139,20 +140,20 @@ module.exports = (acl, opts) => {
                 const readAccess =
                   query.context().readAccess || query._checkAccess('read')
 
+                // if we're fetching multiple resources, the result will be an array.
+                // While access.filter() accepts arrays, we need to invoke any $formatJson()
+                // hooks by individually calling toJSON() on individual models since:
+                // 1. arrays don't have toJSON() method,
+                // 2. objection-visibility doesn't work without calling $formatJson()
                 return isArray
-                  ? // if we're fetching multiple resources, the result will be an array.
-                    // While access.filter() accepts arrays, we need to invoke any $formatJson()
-                    // hooks by individually calling toJSON() on individual models since:
-                    // 1. arrays don't have toJSON() method,
-                    // 2. objection-visibility doesn't work without calling $formatJson()
-                    result.map(model => model._filter(readAccess.attributes))
+                  ? result.map(model => model._filter(readAccess.attributes))
                   : result._filter(readAccess.attributes)
               })
           }
 
           // automatically checks if you can create this resource, and if yes,
           // restricts the body object to only the fields they're allowed to set
-          insert(body) {
+          insert (body) {
             const access = this._checkAccess('create', body)
 
             // when authorize() isn't called, access will be empty
@@ -161,14 +162,14 @@ module.exports = (acl, opts) => {
 
           // automatically checks if you can update this resource, and if yes,
           // restricts the body object to only the fields they're allowed to set
-          patch(body) {
+          patch (body) {
             const access = this._checkAccess('update', body)
 
             return super.patch(access ? access.filter(body) : body)
           }
 
           // automatically checks if you can delete this resource
-          delete() {
+          delete () {
             this._checkAccess('delete')
 
             return super.delete()

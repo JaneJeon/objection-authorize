@@ -13,11 +13,11 @@ const knex = knexjs({
 Model.knex(knex)
 
 class BaseModel extends visibility(Model) {
-  static get tableName() {
+  static get tableName () {
     return 'users'
   }
 
-  static get hidden() {
+  static get hidden () {
     return ['id']
   }
 }
