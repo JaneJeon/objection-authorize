@@ -24,7 +24,7 @@ jobs:
             - node_modules
           key: v1-dependencies-{{ checksum "yarn.lock" }}
 
-      - run: yarn lint:check
+      - run: yarn lint
 
       - run: yarn test --coverage --ci --runInBand --reporters=default --reporters=jest-junit --forceExit
 
