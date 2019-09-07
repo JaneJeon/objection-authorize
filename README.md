@@ -31,7 +31,7 @@ const AccessControl = require("accesscontrol");
 const acl = new AccessControl(grants); // the grants object
 
 const { Model } = require("objection");
-const authorize = require("objection-authorize")(acl);
+const authorize = require("objection-authorize")(acl, opts);
 
 class Post extends authorize(Model) {
   // that's it! This is just a regular objection.js model class
