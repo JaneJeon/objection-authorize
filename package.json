@@ -24,7 +24,7 @@
       "standard --fix",
       "git add"
     ],
-    "*.{json,yml,yaml}": [
+    "*.{md,json,yml,yaml}": [
       "prettier --write",
       "git add"
     ]
