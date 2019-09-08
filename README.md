@@ -1,8 +1,8 @@
-# Objection-Authorize
+<h1 align="center">Welcome to objection-authorize 👋</h1>
 
 [![CircleCI](https://img.shields.io/circleci/build/github/JaneJeon/objection-authorize)](https://circleci.com/gh/JaneJeon/objection-authorize) [![codecov](https://codecov.io/gh/JaneJeon/objection-authorize/branch/master/graph/badge.svg)](https://codecov.io/gh/JaneJeon/objection-authorize) [![Maintainability](https://api.codeclimate.com/v1/badges/78bae22810143ad84ef1/maintainability)](https://codeclimate.com/github/JaneJeon/objection-authorize/maintainability) [![NPM](https://img.shields.io/npm/v/objection-authorize)](https://www.npmjs.com/package/objection-authorize) [![Downloads](https://img.shields.io/npm/dt/objection-authorize)](https://www.npmjs.com/package/objection-authorize) [![install size](https://packagephobia.now.sh/badge?p=objection-authorize)](https://packagephobia.now.sh/result?p=objection-authorize) [![David](https://img.shields.io/david/JaneJeon/objection-authorize)](https://david-dm.org/JaneJeon/objection-authorize) [![Known Vulnerabilities](https://snyk.io//test/github/JaneJeon/objection-authorize/badge.svg?targetFile=package.json)](https://snyk.io//test/github/JaneJeon/objection-authorize?targetFile=package.json) [![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=JaneJeon/objection-authorize)](https://dependabot.com) [![License](https://img.shields.io/npm/l/objection-authorize)](https://github.com/JaneJeon/objection-authorize/blob/master/LICENSE) [![Docs](https://img.shields.io/badge/docs-github-blue)](https://janejeon.github.io/objection-authorize)
 
-"Magical" integration with Objection.js to provide baked-in authorization!
+> &#34;magical&#34; access control integrated with objection.js
 
 It automatically takes away a lot of the manual wiring that you'd need to do if you were to implement your access control on a request/route level, including:
 
@@ -18,7 +18,16 @@ acl
   .can(role)
   .execute(action)
   .context(ctx)
-  .on(resource);
+  .on(resource)
+```
+
+### 🏠 [Homepage](https://github.com/JaneJeon/objection-authorize)
+
+## Install
+
+```sh
+yarn add objection-authorize # or
+npm install objection-authorize --save
 ```
 
 ## Usage
@@ -26,12 +35,12 @@ acl
 Plugging in `objection-authorize` to work with your existing authorization setup is as easy as follows:
 
 ```js
-const AccessControl = require("role-acl"); // or
-const AccessControl = require("accesscontrol");
-const acl = new AccessControl(grants); // the grants object
+const AccessControl = require('role-acl') // or
+const AccessControl = require('accesscontrol')
+const acl = new AccessControl(grants) // the grants object
 
-const { Model } = require("objection");
-const authorize = require("objection-authorize")(acl, opts);
+const { Model } = require('objection')
+const authorize = require('objection-authorize')(acl, opts)
 
 class Post extends authorize(Model) {
   // that's it! This is just a regular objection.js model class
@@ -43,18 +52,18 @@ Then, you can take your resource model and authorize requests like so:
 ```js
 const post = await Post.query()
   .authorize(user)
-  .create({ title: "hello!" }); // authorize a POST request
+  .insert({ title: 'hello!' }) // authorize a POST request
 await Post.query()
-  .authorize(user, { authorId: "jim" })
-  .findById(1); // authorize a GET request
+  .authorize(user, { authorId: 'jim' })
+  .findById(1) // authorize a GET request
 await post
   .$query()
   .authorize(user)
-  .patch(body); // authorize a PATCH request
+  .patch(body) // authorize a PATCH request
 await post
   .$query()
   .authorize(user)
-  .delete(); // authorize a DELETE request
+  .delete() // authorize a DELETE request
 ```
 
 To authorize a request, a user and a resource must be specified. You pass the user as the first parameter of `authorize()`, and the resource as the second parameter.
@@ -62,11 +71,11 @@ To authorize a request, a user and a resource must be specified. You pass the us
 Additionally, this plugin attempts to load the resource from the model instance, so if you've already fetched a resource and are calling `$query()` or `$relatedQuery()` to build a query, you don't even have to pass the resource object to `authorize()` manually!
 
 ```js
-const post = await Post.query().findById(1);
+const post = await Post.query().findById(1)
 await post
   .$query()
   .authorize(user) // resource param not needed
-  .patch(body);
+  .patch(body)
 ```
 
 Furthermore, if you're creating a resource (i.e. `insert()`), then you do not have to specify the resource, though the result from the query will be filtered according to the user's read access.
@@ -81,36 +90,49 @@ You can pass an options object as the second parameter in `objectionAuthorize(ac
 
 ```js
 const opts = {
-  defaultRole: "anonymous",
+  defaultRole: 'anonymous',
   unauthenticatedErrorCode: 401,
   unauthorizedErrorCode: 403,
   resourceName: model => model.name,
   resourceAugments: { true: true, false: false },
-  userFromResult: false
-};
+  userFromResult: false,
+}
 ```
 
 Additionally, you can override the settings on an individual query basis. Just pass the `opts` as the 3rd parameter of `authorize(user, resource, opts)` to override the "global" opts that you set while initializing the plugin _just_ for that query.
 
 For explanations on what each option does, see below:
 
-### defaultRole
+<details>
+<summary>defaultRole</summary>
 
 When the user object is empty, a "default" user object will be created with the `defaultRole`.
 
-### unauthenticatedErrorCode
+</details>
+
+<details>
+<summary>unauthenticatedErrorCode</summary>
 
 Error code thrown when an unauthenticated user is not allowed to access a resource.
 
-### unauthorizedErrorCode
+</details>
+
+<details>
+<summary>unauthorizedErrorCode</summary>
 
 Error code thrown when an authenticated user is not allowed to access a resource.
 
-### resourceName
+</details>
+
+<details>
+<summary>resourceName</summary>
 
 A function to extract resource name from a model class. The default is its raw name (**NOT** lowercased). For instance, if you're using a `Post` model class, your resource name would be `Post`.
 
-### resourceArguments
+</details>
+
+<details>
+<summary>resourceArguments</summary>
 
 Since neither role-acl nor accesscontrol allow you to _just_ check the request body (they don't parse the `$.foo.bar` syntax for the ACL rule keys), if you want to check _only_ the request, you need to put custom properties.
 
@@ -118,7 +140,10 @@ So the default allows checks such as `{Fn: 'EQUALS', args: {true: $.req.body.con
 
 However, note that these properties will _overwrite_ the properties of the resource, so be sure to set this to null, {} or whatever when you're running on queries on such resource to avoid attribute name collision.
 
-### userFromResult
+</details>
+
+<details>
+<summary>userFromResult</summary>
 
 There might be situations where a query (possibly) changes the requesting user itself. In that case, we need to update the user context in order to get accurate read access on the returning result.
 
@@ -132,11 +157,68 @@ To ensure the admin only sees the email address when the changed user is actuall
 
 ```js
 const fn = (user, result) =>
-  user instanceof Model && isEqual(user.$id(), result.$id());
+  user instanceof Model && isEqual(user.$id(), result.$id())
 ```
+
+</details>
 
 ## Authorizing requests
 
-This works with any router framework (express/koa/fastify/etc) - all you need to do is to provide the requesting user (for example, `req.user` in express).
+This works with any router framework (express/koa/fastify/etc) - all you need to do is to provide the requesting user. So instead of `user` in the above examples, you would replace it with `req.user` (for express, for example).
 
-Here's an example of [how the plugin works with express](https://github.com/JaneJeon/express-objection-starter/blob/master/routes/users.js)
+This plugin is agnostic about your choice of authentication - doesn't matter if it's `req.user` or `ctx.user`, or if you're using sessions or JWTs, or if you're using passportjs or something else, all it needs is a user and a resource (optional).
+
+Here's how it might work with express:
+
+```js
+app
+  // for this request, you might want to show the email only if the user is requesting itself,
+  // hence the authorization step
+  .get('/users/:username', async (req, res) => {
+    const username = req.params.username.toLowerCase()
+    const user = await User.query()
+      .authorize(req.user, { username }) // check the resource's username against the requester
+      .findOne({ username })
+
+    res.send(user)
+  })
+  // for this request, you might want to only allow anonymous users to create an account,
+  // and filter its request body so that it doesn't write anything it's not supposed to (e.g. id/role)
+  .post('/users', async (req, res) => {
+    const user = await User.query()
+      .authorize(req.user, null, {
+        unauthorizedErrorCode: 405, // if you're logged in, then this method is not allowed
+        userFromResult: true, // include this to "update" the requester so that they can see their email
+      })
+      .insert(req.body)
+
+    // then login with the user...
+  })
+```
+
+For a real-life example, see here: https://github.com/JaneJeon/express-objection-starter/blob/master/routes/users.js
+
+## Run tests
+
+```sh
+yarn test
+```
+
+## Author
+
+👤 **Jane Jeon**
+
+- Github: [@JaneJeon](https://github.com/JaneJeon)
+
+## 🤝 Contributing
+
+Contributions, issues and feature requests are welcome!<br />Feel free to check [issues page](https://github.com/JaneJeon/objection-authorize/issues).
+
+## Show your support
+
+Give a ⭐️ if this project helped you!
+
+## 📝 License
+
+Copyright © 2019 [Jane Jeon](https://github.com/JaneJeon).<br />
+This project is [MIT](https://github.com/JaneJeon/objection-authorize/blob/master/LICENSE) licensed.
