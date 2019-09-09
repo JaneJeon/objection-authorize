@@ -49,7 +49,7 @@
     "objection": "^1.6.9",
     "objection-visibility": "^0.4.0",
     "prettier": "^1.18.2",
-    "role-acl": "^3.3.6",
+    "role-acl": "^3.3.7",
     "snazzy": "^8.0.0",
     "sqlite3": "^4.1.0",
     "standard": "^14.1.0"
