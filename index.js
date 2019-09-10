@@ -124,11 +124,6 @@ module.exports = (acl, opts) => {
                 if (!Object.keys(resource).length) {
                   if (!isArray) query.mergeContext({ resource: result })
                   else if (first) query.mergeContext({ resource: result[0] })
-                  else if (opts) {
-                    throw new Error(
-                      'authorization failed: no resource specified!'
-                    )
-                  }
                 }
 
                 // after create/update operations, the returning result may be the requester
@@ -189,6 +184,7 @@ module.exports = (acl, opts) => {
             return super.patch(access ? access.filter(body) : body)
           }
 
+          /* istanbul ignore next */
           update (body) {
             const access = this._checkAccess('update', body)
 

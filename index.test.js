@@ -13,10 +13,6 @@ const knex = knexjs({
 Model.knex(knex)
 
 class BaseModel extends visibility(Model) {
-  static get useLimitInFirst () {
-    return true
-  }
-
   static get tableName () {
     return 'users'
   }
