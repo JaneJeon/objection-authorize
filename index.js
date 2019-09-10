@@ -160,15 +160,18 @@ module.exports = (acl, opts) => {
             return super.insert(access ? access.filter(body) : body)
           }
 
-          // automatically checks if you can update this resource, and if yes,
-          // restricts the body object to only the fields they're allowed to set
           patch (body) {
             const access = this._checkAccess('update', body)
 
             return super.patch(access ? access.filter(body) : body)
           }
 
-          // automatically checks if you can delete this resource
+          update (body) {
+            const access = this._checkAccess('update', body)
+
+            return super.update(access ? access.filter(body) : body)
+          }
+
           delete () {
             this._checkAccess('delete')
 
