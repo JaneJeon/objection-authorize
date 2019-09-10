@@ -191,8 +191,8 @@ module.exports = (acl, opts) => {
             return super.update(access ? access.filter(body) : body)
           }
 
-          delete () {
-            this._checkAccess('delete')
+          delete (body) {
+            this._checkAccess('delete', body)
 
             return super.delete()
           }
