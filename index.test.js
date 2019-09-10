@@ -13,6 +13,10 @@ const knex = knexjs({
 Model.knex(knex)
 
 class BaseModel extends visibility(Model) {
+  static get useLimitInFirst () {
+    return true
+  }
+
   static get tableName () {
     return 'users'
   }
@@ -120,7 +124,14 @@ describe('objection-authorize', () => {
 
         // but users can read their own emails
         result = await User.query()
-          .authorize(testUser, { id: 1 }) // specify resource
+          .authorize(testUser, { id: testUser.id }) // specify resource
+          .findById(testUser.id)
+        expect(result.email).toBeDefined()
+      })
+
+      test('falls back to the result for resource', async () => {
+        const result = await User.query()
+          .authorize(testUser)
           .findById(testUser.id)
         expect(result.email).toBeDefined()
       })
@@ -144,6 +155,22 @@ describe('objection-authorize', () => {
           .authorize(testUser, { id: 1 })
           .patch({ username: 'bar' })
       })
+
+      test('does not poison/change the resource parameter', async () => {
+        const resource = testUser.$clone()
+        await User.query()
+          .authorize(testUser, resource)
+          .patch({ username: 'baz' })
+        expect(resource).toStrictEqual(testUser)
+      })
+
+      test('falls back to the model instance for resource', async () => {
+        const user = await User.query().findById(testUser.id)
+        await user
+          .$query()
+          .authorize(testUser)
+          .patch({ username: testUser.username })
+      })
     })
 
     describe('D', () => {
@@ -166,13 +193,4 @@ describe('objection-authorize', () => {
       })
     })
   })
-
-  describe('when using custom defaultRole', () => {
-    const acl = new RoleAcl({ user, default: anonymous })
-    // eslint-disable-next-line no-unused-vars
-    class User extends plugin(acl, { defaultRole: 'default' })(BaseModel) {}
-    // TODO:
-  })
-
-  // TODO: add $query() and $relatedQuery() tests
 })

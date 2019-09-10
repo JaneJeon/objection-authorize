@@ -87,14 +87,15 @@ module.exports = (acl, opts) => {
           authorize (user, resource, optOverride) {
             user = Object.assign({ role: opts.defaultRole }, user)
             resource = resource || this.context().instance || {}
-            const requestOpts = Object.assign({}, opts, optOverride)
+            const queryOpts = Object.assign({}, opts, optOverride)
 
-            return this.mergeContext({ user, resource, opts: requestOpts })
+            return this.mergeContext({ user, resource, opts: queryOpts })
               .runBefore((result, query) => {
                 // this is run AFTER the query has been completely built.
                 // In other words, the query already checked create/update/delete access
-                // by this point, and the only thing to check now is the read access
-                if (query.isFind()) {
+                // by this point, and the only thing to check now is the read access,
+                // IF the resource is specified. Otherwise, it's delayed till the end!
+                if (query.isFind() && Object.keys(resource).length) {
                   const readAccess = query._checkAccess('read')
 
                   // store the read access just in case
@@ -104,41 +105,54 @@ module.exports = (acl, opts) => {
                 return result
               })
               .runAfter((result, query) => {
-                const isArray = Array.isArray(result)
-                // here, we're assuming that if the result is an object, then it must be
-                // an instance of Model, because otherwise toJSON() won't be defined!!
-                const isModel = typeof result === 'object'
-
                 // there's no result object(s) to filter here
-                if (!(isArray || isModel)) return result
+                if (typeof result !== 'object') return result
 
-                // after create/update operations, the returning result may be the requester
-                if (isModel) {
-                  const { user, opts } = this.context()
+                const isArray = Array.isArray(result)
 
-                  // check if we the user is changed
-                  if (opts.userFromResult) {
-                    const resultIsUser =
-                      opts.userFromResult === 'function'
-                        ? opts.userFromResult(user, result)
-                        : true
+                let {
+                  resource,
+                  first,
+                  opts,
+                  user,
+                  readAccess
+                } = query.context()
 
-                    // now we need to re-check read access from the context of the changed user
-                    if (resultIsUser) {
-                      // first, override the user and resource context for _checkAccess.
-                      // Note that it's important to specify the result here because we're
-                      // checking read access against the user itself
-                      query.mergeContext({ user: result, resource: result })
-                      // then obtain read access
-                      const readAccess = query._checkAccess('read')
-                      // then merge readAccess for the next line
-                      query.mergeContext({ readAccess })
-                    }
+                // set the resource as the result if it's still not set!
+                // Note, since the resource needs to be singular, it can only be done
+                // when there's only one result!
+                if (!Object.keys(resource).length) {
+                  if (!isArray) query.mergeContext({ resource: result })
+                  else if (first) query.mergeContext({ resource: result[0] })
+                  else if (opts) {
+                    throw new Error(
+                      'authorization failed: no resource specified!'
+                    )
                   }
                 }
 
-                const readAccess =
-                  query.context().readAccess || query._checkAccess('read')
+                // after create/update operations, the returning result may be the requester
+                if (
+                  (query.isInsert() || query.isUpdate()) &&
+                  !isArray &&
+                  opts.userFromResult
+                ) {
+                  // check if we the user is changed
+                  const resultIsUser =
+                    typeof opts.userFromResult === 'function'
+                      ? opts.userFromResult(user, result)
+                      : true
+
+                  // now we need to re-check read access from the context of the changed user
+                  if (resultIsUser) {
+                    // first, override the user and resource context for _checkAccess
+                    query.mergeContext({ user: result })
+                    // then obtain read access
+                    readAccess = query._checkAccess('read')
+                  }
+                }
+
+                readAccess = readAccess || query._checkAccess('read')
 
                 // if we're fetching multiple resources, the result will be an array.
                 // While access.filter() accepts arrays, we need to invoke any $formatJson()
@@ -150,6 +164,15 @@ module.exports = (acl, opts) => {
                   : result._filter(readAccess.attributes)
               })
           }
+
+          first () {
+            this.mergeContext({ first: true })
+
+            return super.first()
+          }
+
+          // insert/patch/update/delete are the "primitive" query actions.
+          // All other methods like insertAndFetch or deleteById are built on these.
 
           // automatically checks if you can create this resource, and if yes,
           // restricts the body object to only the fields they're allowed to set

@@ -1,7 +1,7 @@
 {
   "name": "objection-authorize",
-  "version": "0.5.14",
-  "description": "\"magic\" access control integrated with objection.js",
+  "version": "0.6.0",
+  "description": "\"magical\" access control integrated with objection.js",
   "main": "index.js",
   "repository": "JaneJeon/objection-authorize",
   "author": "Jane Jeon <JaneJeon9719@gmail.com>",
@@ -34,8 +34,15 @@
       "jest"
     ]
   },
+  "prettier": {
+    "semi": false,
+    "singleQuote": true
+  },
   "dependencies": {
     "http-assert": "^1.4.1"
+  },
+  "peerDependencies": {
+    "objection": "1.X"
   },
   "devDependencies": {
     "@types/jest": "^24.0.18",
