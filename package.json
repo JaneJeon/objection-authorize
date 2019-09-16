@@ -59,7 +59,7 @@
     "role-acl": "^3.3.7",
     "snazzy": "^8.0.0",
     "sqlite3": "^4.1.0",
-    "standard": "^14.1.0"
+    "standard": "^14.3.0"
   },
   "keywords": [
     "objection",
