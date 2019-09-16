@@ -51,7 +51,7 @@
     "is-ci": "^2.0.0",
     "jest": "^24.9.0",
     "jest-junit": "^8.0.0",
-    "knex": "^0.19.3",
+    "knex": "^0.19.4",
     "lint-staged": "^9.2.5",
     "objection": "^1.6.9",
     "objection-visibility": "^0.4.0",
