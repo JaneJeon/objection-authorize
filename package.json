@@ -53,7 +53,7 @@
     "jest-junit": "^8.0.0",
     "knex": "^0.19.4",
     "lint-staged": "^9.3.0",
-    "objection": "^1.6.9",
+    "objection": "^1.6.11",
     "objection-visibility": "^0.4.0",
     "prettier": "^1.18.2",
     "role-acl": "^3.3.7",
