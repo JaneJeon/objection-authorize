@@ -4465,10 +4465,10 @@ rimraf@^3.0.0:
   dependencies:
     glob "^7.1.3"
 
-role-acl@^3.3.7:
-  version "3.3.7"
-  resolved "https://registry.yarnpkg.com/role-acl/-/role-acl-3.3.7.tgz#24354857df6f3444934a9ce1194a3107e585537c"
-  integrity sha512-bWY4T2/JKVMVjRrVccAvka7tqqaghzCSNk3evoo4pzzUrlYprKdn2MpiFZsBAt3QpODzUsejgMpJ8XFyAItA+Q==
+role-acl@^4.0.6:
+  version "4.0.6"
+  resolved "https://registry.yarnpkg.com/role-acl/-/role-acl-4.0.6.tgz#f6dec039adda2b4ff3f5bb03b7724257e7190ba7"
+  integrity sha512-U8G5aTxqdbHqjt6Cye5+uE2UHqRG0isPwyX58zP67DTHppNBaAs28sxmrP3S3ugGq+qYT6w1a4juqfN4j+VH0Q==
   dependencies:
     jsonpath-plus "^0.18.0"
     matcher "^1.0.0"
