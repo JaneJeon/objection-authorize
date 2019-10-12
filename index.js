@@ -39,13 +39,13 @@ module.exports = (acl, opts) => {
 
       // inject instance context
       $query (trx) {
-        return super.$query(trx).mergeContext({ instance: this })
+        return super.$query(trx).mergeContext({ _instance: this })
       }
 
       $relatedQuery (relation, trx) {
         return super
           .$relatedQuery(relation, trx)
-          .mergeContext({ instance: this })
+          .mergeContext({ _instance: this })
       }
 
       static get QueryBuilder () {
@@ -56,7 +56,12 @@ module.exports = (acl, opts) => {
 
           // wrappers around acl, querybuilder, and model
           async _checkAccess (action) {
-            let { user, resource, opts, body } = this.context()
+            let {
+              _user: user,
+              _resource: resource,
+              _opts: opts,
+              _body: body
+            } = this.context()
             body = body || resource
 
             // _checkAccess may be called outside of authorization context
@@ -96,27 +101,27 @@ module.exports = (acl, opts) => {
           // schedule the query to be run, and do the actual check in the runBefore() hook.
           // However, this means that we CANNOT modify the body on-the-fly according
           // to the access context, so you either pass the body directly, or you get 403 error.
-          insert (body) {
-            this.mergeContext({ body })
+          insert (_body) {
+            this.mergeContext({ _body })
 
-            return super.insert(body)
+            return super.insert(_body)
           }
 
-          patch (body) {
-            this.mergeContext({ body })
+          patch (_body) {
+            this.mergeContext({ _body })
 
-            return super.patch(body)
+            return super.patch(_body)
           }
 
           /* istanbul ignore next */
-          update (body) {
-            this.mergeContext({ body })
+          update (_body) {
+            this.mergeContext({ _body })
 
-            return super.update(body)
+            return super.update(_body)
           }
 
-          delete (body) {
-            this.mergeContext({ body })
+          delete (_body) {
+            this.mergeContext({ _body })
 
             return super.delete()
           }
@@ -130,9 +135,9 @@ module.exports = (acl, opts) => {
           authorize (user, resource, optOverride) {
             return (
               this.mergeContext({
-                user: Object.assign({ role: opts.defaultRole }, user),
-                resource: resource || this.context().instance || {},
-                opts: Object.assign({}, opts, optOverride),
+                _user: Object.assign({ role: opts.defaultRole }, user),
+                _resource: resource || this.context()._instance || {},
+                _opts: Object.assign({}, opts, optOverride),
                 _authorize: true
               })
                 // this is run AFTER the query has been completely built
@@ -146,10 +151,10 @@ module.exports = (acl, opts) => {
                     query.isFind() &&
                     // check read access if we know what the access is before the query is run,
                     // and then pass the readAccess to the context so we don't have to check again
-                    !isEmpty(query.context().resource)
+                    !isEmpty(query.context()._resource)
                   )
                     query.mergeContext({
-                      readAccess: await query._checkAccess('read')
+                      _readAccess: await query._checkAccess('read')
                     })
 
                   return result
@@ -162,19 +167,19 @@ module.exports = (acl, opts) => {
                   const isArray = Array.isArray(result)
 
                   let {
-                    resource,
-                    first,
-                    opts,
-                    user,
-                    readAccess
+                    _resource: resource,
+                    _first: first,
+                    _opts: opts,
+                    _user: user,
+                    _readAccess: readAccess
                   } = query.context()
 
                   // set the resource as the result if it's still not set!
                   // Note, since the resource needs to be singular, it can only be done
                   // when there's only one result!
                   if (isEmpty(resource)) {
-                    if (!isArray) query.mergeContext({ resource: result })
-                    else if (first) query.mergeContext({ resource: result[0] })
+                    if (!isArray) query.mergeContext({ _resource: result })
+                    else if (first) query.mergeContext({ _resource: result[0] })
                   }
 
                   // after create/update operations, the returning result may be the requester
@@ -192,7 +197,7 @@ module.exports = (acl, opts) => {
                     // now we need to re-check read access from the context of the changed user
                     if (resultIsUser) {
                       // first, override the user and resource context for _checkAccess
-                      query.mergeContext({ user: result })
+                      query.mergeContext({ _user: result })
                       // then obtain read access
                       readAccess = query._checkAccess('read')
                     }
@@ -213,7 +218,7 @@ module.exports = (acl, opts) => {
           }
 
           first () {
-            this.mergeContext({ first: true })
+            this.mergeContext({ _first: true })
 
             return super.first()
           }
