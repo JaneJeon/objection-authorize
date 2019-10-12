@@ -10,7 +10,7 @@
     "test": "jest",
     "test:watch": "yarn test --watch",
     "coverage": "is-ci && codecov",
-    "lint": "standard | snazzy && prettier --check '**/*.{md,json,yml,yaml}'"
+    "lint": "prettier-standard --check --lint"
   },
   "husky": {
     "hooks": {
@@ -19,19 +19,9 @@
     }
   },
   "lint-staged": {
-    "*.js": [
-      "prettier --write",
-      "standard --fix",
+    "**/*": [
+      "prettier-standard --lint",
       "git add"
-    ],
-    "*.{md,json,yml,yaml}": [
-      "prettier --write",
-      "git add"
-    ]
-  },
-  "standard": {
-    "env": [
-      "jest"
     ]
   },
   "prettier": {
@@ -55,11 +45,9 @@
     "lint-staged": "^9.4.0",
     "objection": "^1.6.11",
     "objection-visibility": "^0.4.0",
-    "prettier": "^1.18.2",
-    "role-acl": "^3.3.7",
-    "snazzy": "^8.0.0",
-    "sqlite3": "^4.1.0",
-    "standard": "^14.3.1"
+    "prettier-standard": "^15.0.1",
+    "role-acl": "^4.1.0",
+    "sqlite3": "^4.1.0"
   },
   "keywords": [
     "objection",
