@@ -1,6 +1,18 @@
 <h1 align="center">Welcome to objection-authorize 👋</h1>
 
-[![CircleCI](https://img.shields.io/circleci/build/github/JaneJeon/objection-authorize)](https://circleci.com/gh/JaneJeon/objection-authorize) [![codecov](https://codecov.io/gh/JaneJeon/objection-authorize/branch/master/graph/badge.svg)](https://codecov.io/gh/JaneJeon/objection-authorize) [![Maintainability](https://api.codeclimate.com/v1/badges/78bae22810143ad84ef1/maintainability)](https://codeclimate.com/github/JaneJeon/objection-authorize/maintainability) [![NPM](https://img.shields.io/npm/v/objection-authorize)](https://www.npmjs.com/package/objection-authorize) [![Downloads](https://img.shields.io/npm/dt/objection-authorize)](https://www.npmjs.com/package/objection-authorize) [![install size](https://packagephobia.now.sh/badge?p=objection-authorize)](https://packagephobia.now.sh/result?p=objection-authorize) [![David](https://img.shields.io/david/JaneJeon/objection-authorize)](https://david-dm.org/JaneJeon/objection-authorize) [![Known Vulnerabilities](https://snyk.io//test/github/JaneJeon/objection-authorize/badge.svg?targetFile=package.json)](https://snyk.io//test/github/JaneJeon/objection-authorize?targetFile=package.json) [![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=JaneJeon/objection-authorize)](https://dependabot.com) [![License](https://img.shields.io/npm/l/objection-authorize)](https://github.com/JaneJeon/objection-authorize/blob/master/LICENSE) [![Docs](https://img.shields.io/badge/docs-github-blue)](https://janejeon.github.io/objection-authorize)
+[![CircleCI](https://img.shields.io/circleci/build/github/JaneJeon/objection-authorize)](https://circleci.com/gh/JaneJeon/objection-authorize)
+[![codecov](https://codecov.io/gh/JaneJeon/objection-authorize/branch/master/graph/badge.svg)](https://codecov.io/gh/JaneJeon/objection-authorize)
+[![Maintainability](https://api.codeclimate.com/v1/badges/78bae22810143ad84ef1/maintainability)](https://codeclimate.com/github/JaneJeon/objection-authorize/maintainability)
+[![NPM](https://img.shields.io/npm/v/objection-authorize)](https://www.npmjs.com/package/objection-authorize)
+[![Downloads](https://img.shields.io/npm/dt/objection-authorize)](https://www.npmjs.com/package/objection-authorize)
+[![install size](https://packagephobia.now.sh/badge?p=objection-authorize)](https://packagephobia.now.sh/result?p=objection-authorize)
+[![David](https://img.shields.io/david/JaneJeon/objection-authorize)](https://david-dm.org/JaneJeon/objection-authorize)
+[![Known Vulnerabilities](https://snyk.io//test/github/JaneJeon/objection-authorize/badge.svg?targetFile=package.json)](https://snyk.io//test/github/JaneJeon/objection-authorize?targetFile=package.json)
+[![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=JaneJeon/objection-authorize)](https://dependabot.com)
+[![License](https://img.shields.io/npm/l/objection-authorize)](https://github.com/JaneJeon/objection-authorize/blob/master/LICENSE)
+[![Docs](https://img.shields.io/badge/docs-github-blue)](https://janejeon.github.io/objection-authorize)
+[![Standard code style](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
+[![Prettier code style](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
 
 > &#34;magical&#34; access control integrated with objection.js
 
@@ -29,6 +41,10 @@ acl
 yarn add objection-authorize # or
 npm install objection-authorize --save
 ```
+
+## Changelog
+
+Starting from 1.0 release, all changes will be documented at the [releases page](https://github.com/JaneJeon/objection-authorize/releases).
 
 ## Usage
 
@@ -179,8 +195,7 @@ Here's how it might work with express:
 
 ```js
 app
-  // for this request, you might want to show the email only if the user is requesting itself,
-  // hence the authorization step
+  // for this request, you might want to show the email only if the user is requesting itself
   .get('/users/:username', async (req, res) => {
     const username = req.params.username.toLowerCase()
     const user = await User.query()
@@ -190,7 +205,7 @@ app
     res.send(user)
   })
   // for this request, you might want to only allow anonymous users to create an account,
-  // and filter its request body so that it doesn't write anything it's not supposed to (e.g. id/role)
+  // and prevent them from writing anything they're not allowed to (e.g. id/role)
   .post('/users', async (req, res) => {
     const user = await User.query()
       .authorize(req.user, null, {
@@ -206,7 +221,7 @@ app
     const username = req.params.username.toLowerCase()
     // we fetch the user first to provide resource context for the authorize() call.
     // Note that if we were to just call User.query().patchAndFetchById() and skip resource,
-    // then req.user would be able to modify any user before we can even authorize them!
+    // then the requester would be able to modify any user before we can even authorize them!
     let user = await User.query().findOne({ username })
     user = await user
       .$query()
