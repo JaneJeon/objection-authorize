@@ -63,7 +63,7 @@ class Post extends authorize(Model) {
 }
 ```
 
-And that adds a "magic" `authorize(user, resource)` method that can be chained to provide access control and authorize requests. Note that if you're using the method, it MUST be called _before_ any insert/patch/update/delete calls:
+And that adds a "magic" `authorize(user, resource, opts)` method that can be chained to provide access control and authorize requests. Note that if you're using the method, it MUST be called _before_ any insert/patch/update/delete calls:
 
 ```js
 const post = await Post.query()
@@ -106,6 +106,19 @@ Furthermore, if you're creating a resource (i.e. `insert()`), then you do not ha
 In general, if your query returns a resource or a list of resources, then that result set will be filtered according to the user's read access.
 
 For more examples, [see here](https://github.com/JaneJeon/objection-authorize/blob/master/index.test.js).
+
+## Authorization Context
+
+Due to the limitations of both `accesscontrol` and `role-acl`, authorization context (i.e. the right side of access condition arguments) combines the actual resource object, requester, the query object (the stuff you pass to `Model.query().update(obj)` and the likes), resource argument options (global and local) into one object.
+
+This does mean that there's a potential for key conflicts. In that case, the precedence is as follows:
+
+1. The resource object (attached to top level; its fields are accessible directly by `$.$field`)
+2. The query-level/local resource arguments (ditto)
+3. The plugin-level/global resource arguments (ditto)
+4. Requester/query object (attached under the `req` key: accessible by `$.req.user.$field` and `$.req.body.$field`).
+
+So if resource (priority 1) had a property called `req`, then the requester and query object (priority 2) would be overwritten and be inaccessible under `$.req.(user|body)`.
 
 ## Configuration
 
@@ -160,8 +173,6 @@ A function to extract resource name from a model class. The default is its raw n
 Since neither role-acl nor accesscontrol allow you to _just_ check the request body (they don't parse the `$.foo.bar` syntax for the ACL rule keys), if you want to check _only_ the request, you need to put custom properties.
 
 So the default allows checks such as `{Fn: 'EQUALS', args: {true: $.req.body.confirm}}` (useful when trying to require that a user confirm deletion of a resource, for example) by attaching the "true" and "false" values as part of the property of the resource!!
-
-However, note that these properties will _overwrite_ the properties of the resource, so be sure to set this to null, {} or whatever when you're running on queries on such resource to avoid attribute name collision.
 
 </details>
 

@@ -73,9 +73,9 @@ module.exports = (acl, opts) => {
               .context(
                 Object.assign(
                   {},
-                  resource,
                   { req: { user, body } },
-                  opts.resourceAugments
+                  opts.resourceAugments,
+                  resource
                 )
               )
               .on(opts.resourceName(this.modelClass()))
