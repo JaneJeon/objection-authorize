@@ -132,7 +132,7 @@ const opts = {
   unauthenticatedErrorCode: 401,
   unauthorizedErrorCode: 403,
   resourceName: model => model.name,
-  resourceAugments: { true: true, false: false },
+  resourceAugments: { true: true, false: false, undefined: undefined },
   userFromResult: false
 }
 ```

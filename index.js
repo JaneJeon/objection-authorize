@@ -13,7 +13,7 @@ module.exports = (acl, opts) => {
     unauthenticatedErrorCode: 401,
     unauthorizedErrorCode: 403,
     resourceName: model => model.name,
-    resourceAugments: { true: true, false: false },
+    resourceAugments: { true: true, false: false, undefined: undefined },
     userFromResult: false
   }
   opts = Object.assign(defaultOpts, opts)
@@ -23,7 +23,7 @@ module.exports = (acl, opts) => {
       // used to filter model's attributes according to a user's read access.
       // First pick the fields, and then filter them, as per:
       // https://github.com/oscaroox/objection-visibility
-      _filter (attributes = []) {
+      _filter(attributes = []) {
         const pickFields = attributes.filter(
           field => field !== '*' && !field.startsWith('!')
         )
@@ -38,24 +38,24 @@ module.exports = (acl, opts) => {
       }
 
       // inject instance context
-      $query (trx) {
+      $query(trx) {
         return super.$query(trx).mergeContext({ _instance: this })
       }
 
-      $relatedQuery (relation, trx) {
+      $relatedQuery(relation, trx) {
         return super
           .$relatedQuery(relation, trx)
           .mergeContext({ _instance: this })
       }
 
-      static get QueryBuilder () {
+      static get QueryBuilder() {
         return class extends Model.QueryBuilder {
-          get _shouldCheckAccess () {
+          get _shouldCheckAccess() {
             return this.context()._authorize
           }
 
           // wrappers around acl, querybuilder, and model
-          async _checkAccess (action) {
+          async _checkAccess(action) {
             let {
               _user: user,
               _resource: resource,
@@ -101,38 +101,38 @@ module.exports = (acl, opts) => {
           // schedule the query to be run, and do the actual check in the runBefore() hook.
           // However, this means that we CANNOT modify the body on-the-fly according
           // to the access context, so you either pass the body directly, or you get 403 error.
-          insert (_body) {
+          insert(_body) {
             this.mergeContext({ _body })
 
             return super.insert(_body)
           }
 
-          patch (_body) {
+          patch(_body) {
             this.mergeContext({ _body })
 
             return super.patch(_body)
           }
 
           /* istanbul ignore next */
-          update (_body) {
+          update(_body) {
             this.mergeContext({ _body })
 
             return super.update(_body)
           }
 
-          delete (_body) {
+          delete(_body) {
             this.mergeContext({ _body })
 
             return super.delete()
           }
 
-          deleteById (id, body) {
+          deleteById(id, body) {
             return this.findById(id).delete(body)
           }
 
           // THE magic method that schedules the actual authorization logic to be called
           // later down the line when the query is built and is ready to be executed.
-          authorize (user, resource, optOverride) {
+          authorize(user, resource, optOverride) {
             return (
               this.mergeContext({
                 _user: Object.assign({ role: opts.defaultRole }, user),
@@ -217,7 +217,7 @@ module.exports = (acl, opts) => {
             )
           }
 
-          first () {
+          first() {
             this.mergeContext({ _first: true })
 
             return super.first()
