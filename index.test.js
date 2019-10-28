@@ -13,11 +13,11 @@ const knex = knexjs({
 Model.knex(knex)
 
 class BaseModel extends visibility(Model) {
-  static get tableName () {
+  static get tableName() {
     return 'users'
   }
 
-  static get hidden () {
+  static get hidden() {
     return ['id']
   }
 }
@@ -28,7 +28,7 @@ const anonymous = {
     {
       resource: 'User',
       action: 'read',
-      attributes: ['*', '!email']
+      attributes: ['*', '!email', '!secrethiddenfield']
     },
     {
       resource: 'User',
@@ -42,7 +42,7 @@ const user = {
     {
       resource: 'User',
       action: 'read',
-      attributes: ['*', '!email']
+      attributes: ['*', '!email', '!secrethiddenfield']
     },
     {
       resource: 'User',
@@ -71,6 +71,7 @@ describe('objection-authorize', () => {
       table.text('username')
       table.text('email')
       table.text('role')
+      table.text('secrethiddenfield')
     })
   })
 
@@ -87,26 +88,28 @@ describe('objection-authorize', () => {
     class User extends plugin(acl)(BaseModel) {}
 
     let testUser
-    const userData = { username: 'hello', email: 'foo@bar.com', role: 'user' }
+    const userData = {
+      username: 'hello',
+      email: 'foo@bar.com',
+      role: 'user',
+      secrethiddenfield: 'hello'
+    }
 
     describe('C', () => {
       test('works', async () => {
         // create test user
         testUser = await User.query()
           .authorize(null, null, { userFromResult: true })
-          .insert(userData)
+          .insertAndFetch(userData)
         expect(testUser.email).toBeDefined()
+        expect(testUser.secrethiddenfield).toBeUndefined()
 
         // you can't create user while logged in
-        let error
-        try {
-          await User.query()
+        expect(() =>
+          User.query()
             .authorize(testUser)
             .insert(userData)
-        } catch (err) {
-          error = err
-        }
-        expect(error)
+        ).toThrow()
       })
     })
 
@@ -136,20 +139,31 @@ describe('objection-authorize', () => {
     describe('U', () => {
       test('works', async () => {
         // an anonymous user shouldn't be able to update registered user's details
-        let error
-        try {
-          await User.query()
-            .authorize(undefined, testUser)
+        expect(() =>
+          testUser
+            .$query()
+            .authorize(undefined)
             .patch({ username: 'foo' })
-        } catch (err) {
-          error = err
-        }
-        expect(error)
+        ).toThrow()
 
         // but a user should be able to update their own details
-        await User.query()
-          .authorize(testUser, { id: 1 })
-          .patch({ username: 'bar' })
+        testUser = await testUser
+          .$query()
+          .authorize(testUser, testUser)
+          .patchAndFetch({ username: 'bar' })
+        expect(testUser.username).toBe('bar')
+      })
+
+      // this only works when the ACL is synchronous!
+      test('filters any potential changes against the ACL', async () => {
+        // you shouldn't be able to update your own id
+        const user = await testUser
+          .$query()
+          .authorize(testUser)
+          .patchAndFetch({ id: 395 })
+
+        const firstUser = await User.query().first()
+        expect(firstUser.id).toEqual(testUser.id)
       })
 
       test('does not poison/change the resource parameter', async () => {
@@ -161,8 +175,7 @@ describe('objection-authorize', () => {
       })
 
       test('falls back to the model instance for resource', async () => {
-        const user = await User.query().findById(testUser.id)
-        await user
+        await testUser
           .$query()
           .authorize(testUser)
           .patch({ username: testUser.username })
@@ -170,22 +183,27 @@ describe('objection-authorize', () => {
     })
 
     describe('D', () => {
+      test('can pass in custom context', async () => {
+        await User.query()
+          .authorize(testUser, testUser)
+          .action('delete')
+          .patch({ username: 'deleted' })
+      })
+
       test('works', async () => {
         // you shouldn't be able to delete others' accounts
-        let error
-        try {
-          await User.query()
-            .authorize({ role: 'user', id: 2 }, testUser)
-            .deleteById(1)
-        } catch (err) {
-          error = err
-        }
-        expect(error)
+        expect(() =>
+          testUser
+            .$query()
+            .authorize({ role: 'user', id: 2 })
+            .delete()
+        ).toThrow()
 
         // but a user should be able to delete their own account
-        await User.query()
-          .authorize(testUser, { id: 1 })
-          .deleteById(1)
+        await testUser
+          .$query()
+          .authorize(testUser)
+          .delete()
       })
     })
   })
