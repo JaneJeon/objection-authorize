@@ -13,11 +13,11 @@ const knex = knexjs({
 Model.knex(knex)
 
 class BaseModel extends visibility(Model) {
-  static get tableName() {
+  static get tableName () {
     return 'users'
   }
 
-  static get hidden() {
+  static get hidden () {
     return ['id']
   }
 }
@@ -85,7 +85,7 @@ describe('objection-authorize', () => {
 
   describe('when using default options', () => {
     const acl = new RoleAcl({ user, anonymous })
-    class User extends plugin(acl)(BaseModel) {}
+    class User extends plugin(acl, { contextKey: 'req' })(BaseModel) {}
 
     let testUser
     const userData = {
@@ -157,7 +157,7 @@ describe('objection-authorize', () => {
       // this only works when the ACL is synchronous!
       test('filters any potential changes against the ACL', async () => {
         // you shouldn't be able to update your own id
-        const user = await testUser
+        await testUser
           .$query()
           .authorize(testUser)
           .patchAndFetch({ id: 395 })

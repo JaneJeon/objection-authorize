@@ -133,7 +133,8 @@ const opts = {
   unauthorizedErrorCode: 403,
   resourceName: model => model.name,
   resourceAugments: { true: true, false: false, undefined: undefined },
-  userFromResult: false
+  userFromResult: false,
+  contextKey: 'ctx'
 }
 ```
 
@@ -197,6 +198,18 @@ const fn = (user, result) =>
 ```
 
 </details>
+
+<details>
+<summary>contextKey</summary>
+
+As we gather various context (e.g. user, body, etc) throughout the query building process, we need to mount them to some key at the end, so you can access them via `$.ctx.user`, for example.
+The examples in the test use `req` key, so we access them via `$.req.user` and `$.req.body`.
+
+</details>
+
+### Specifying action per query
+
+In addition to the above options, you can also specify the action per query. This is useful when you have custom actions in your ACL (such as `promote`). Just chain a `.action(customAction)` to the query and that will override the default action (`create`/`read`/`update`/`delete`) when checking access!
 
 ## Authorizing requests
 
