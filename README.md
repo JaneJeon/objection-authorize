@@ -33,7 +33,7 @@ acl
   .on(resource)
 ```
 
-Not sure why you would need this? Read below for examples or [see here](https://janejeon.com/integrating-access-control-to-your-node-js-apps) to learn just how complex access control can be and how you can manage said complexity with this plugin!
+Not sure why you would need this? Read below for examples or [see here](https://janejeon.dev/integrating-access-control-to-your-node-js-apps) to learn just how complex access control can be and how you can manage said complexity with this plugin!
 
 ### 🏠 [Homepage](https://github.com/JaneJeon/objection-authorize)
 
