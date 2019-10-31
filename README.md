@@ -23,26 +23,20 @@ It automatically takes away a lot of the manual wiring that you'd need to do if 
 - figuring out _which_ resource to check the user's grants against automatically(!)
 - even filtering the result from a query according to a user's read access!
 
-This plugin supports both `role-acl` and `accesscontrol` modules, along with any authorization framework that uses the following syntax to check access:
-
-```js
-acl
-  .can(role)
-  .execute(action)
-  .context(ctx)
-  .on(resource)
-```
-
 Not sure why you would need this? Read below for examples or [see here](https://janejeon.com/integrating-access-control-to-your-node-js-apps) to learn just how complex access control can be and how you can manage said complexity with this plugin!
 
 ### 🏠 [Homepage](https://github.com/JaneJeon/objection-authorize)
 
 ## Install
 
+To install the library itself:
+
 ```sh
-yarn add objection-authorize # or
-npm install objection-authorize --save
+yarn add objection objection-authorize # or
+npm install objection objection-authorize --save
 ```
+
+And you can install either `role-acl` or `@casl/ability` as your authorization framework. Note that versions 4 and above of `role-acl` will NOT be supported as it eliminated ALL synchronous methods outright!
 
 ## Changelog
 
