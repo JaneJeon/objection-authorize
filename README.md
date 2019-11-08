@@ -23,8 +23,6 @@ It automatically takes away a lot of the manual wiring that you'd need to do if 
 - figuring out _which_ resource to check the user's grants against automatically(!)
 - even filtering the result from a query according to a user's read access!
 
-Not sure why you would need this? Read below for examples or [see here](https://janejeon.com/integrating-access-control-to-your-node-js-apps) to learn just how complex access control can be and how you can manage said complexity with this plugin!
-
 ### 🏠 [Homepage](https://github.com/JaneJeon/objection-authorize)
 
 ## Install
