@@ -16,9 +16,13 @@ module.exports = (acl, opts) => {
     resourceName: model => model.name,
     resourceAugments: { true: true, false: false, undefined: undefined },
     userFromResult: false,
-    contextKey: 'ctx'
+    contextKey: 'req',
+    library: 'role-acl',
+    wrapClass: false
   }
   opts = Object.assign(defaultOpts, opts)
+
+  const lib = require(`./lib/${opts.library}`)
 
   return Model => {
     class AuthQueryBuilder extends Model.QueryBuilder {
@@ -28,8 +32,11 @@ module.exports = (acl, opts) => {
 
       // wrappers around acl, querybuilder, and model
       _checkAccess (action, body) {
+        // _checkAccess may be called outside of authorization context
+        if (!this._shouldCheckAccess) return
+
         debug('_checkAccess', action, body)
-        const {
+        let {
           _user: user,
           _resource: resource,
           _opts: opts,
@@ -37,26 +44,30 @@ module.exports = (acl, opts) => {
         } = this.context()
         body = body || resource
         action = _action || action
+        const ctx = Object.assign(
+          {},
+          { [opts.contextKey]: { user, body } },
+          opts.resourceAugments,
+          resource
+        )
+        if (opts.wrapClass)
+          resource = this.modelClass().fromJson(resource, {
+            skipValidation: true
+          })
+        const resourceName = opts.resourceName(this.modelClass())
 
-        // _checkAccess may be called outside of authorization context
-        if (!this._shouldCheckAccess) return
-
-        const access = acl
-          .can(user.role)
-          .execute(action)
-          .context(
-            Object.assign(
-              {},
-              { [opts.contextKey]: { user, body } },
-              opts.resourceAugments,
-              resource
-            )
-          )
-          .on(opts.resourceName(this.modelClass()))
+        const access = lib.getAccess(
+          acl,
+          user,
+          resourceName,
+          resource,
+          action,
+          ctx
+        )
 
         // authorize request
         assert(
-          access.granted,
+          lib.isAuthorized(access),
           user.role === opts.defaultRole
             ? opts.unauthenticatedErrorCode
             : opts.unauthorizedErrorCode
@@ -237,8 +248,8 @@ module.exports = (acl, opts) => {
             // 1. arrays don't have toJSON() method,
             // 2. objection-visibility doesn't work without calling $formatJson()
             return isArray
-              ? result.map(model => model._filter(readAccess.attributes))
-              : result._filter(readAccess.attributes)
+              ? result.map(model => model._filter(readAccess))
+              : result._filter(readAccess)
           })
 
         // for chaining
@@ -250,13 +261,9 @@ module.exports = (acl, opts) => {
       // used to filter model's attributes according to a user's read access.
       // First pick the fields, and then filter them, as per:
       // https://github.com/oscaroox/objection-visibility
-      _filter (attributes = []) {
-        const pickFields = attributes.filter(
-          field => field !== '*' && !field.startsWith('!')
-        )
-        const omitFields = attributes
-          .filter(field => field.startsWith('!'))
-          .map(field => field.substr(1))
+      _filter (access) {
+        const pickFields = lib.pickFields(access)
+        const omitFields = lib.omitFields(access)
 
         if (pickFields.length) this.$pick(pickFields)
         if (omitFields.length) this.$omit(omitFields)

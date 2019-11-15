@@ -85,7 +85,7 @@ describe('objection-authorize', () => {
 
   describe('when using default options', () => {
     const acl = new RoleAcl({ user, anonymous })
-    class User extends plugin(acl, { contextKey: 'req' })(BaseModel) {}
+    class User extends plugin(acl)(BaseModel) {}
 
     let testUser
     const userData = {
