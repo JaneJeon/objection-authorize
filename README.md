@@ -36,7 +36,7 @@ yarn add objection objection-authorize # or
 npm install objection objection-authorize --save
 ```
 
-And you can install either `role-acl` or `@casl/ability` as your authorization framework. Note that versions 4 and above of `role-acl` will NOT be supported as it eliminated ALL synchronous methods outright!
+And you can install either `role-acl` or `@casl/ability` as your authorization framework. Note that `role-acl` v4 or above will NOT be supported as the library author eliminated ALL synchronous methods outright!
 
 ## Changelog
 
@@ -128,7 +128,9 @@ const opts = {
   resourceName: model => model.name,
   resourceAugments: { true: true, false: false, undefined: undefined },
   userFromResult: false,
-  contextKey: 'ctx'
+  contextKey: 'req',
+  library: 'role-acl',
+  wrapClass: false
 }
 ```
 
@@ -154,13 +156,6 @@ Error code thrown when an unauthenticated user is not allowed to access a resour
 <summary>unauthorizedErrorCode</summary>
 
 Error code thrown when an authenticated user is not allowed to access a resource.
-
-</details>
-
-<details>
-<summary>resourceName</summary>
-
-A function to extract resource name from a model class. The default is its raw name (**NOT** lowercased). For instance, if you're using a `Post` model class, your resource name would be `Post`.
 
 </details>
 
@@ -196,14 +191,37 @@ const fn = (user, result) =>
 <details>
 <summary>contextKey</summary>
 
-As we gather various context (e.g. user, body, etc) throughout the query building process, we need to mount them to some key at the end, so you can access them via `$.ctx.user`, for example.
-The examples in the test use `req` key, so we access them via `$.req.user` and `$.req.body`.
+As we gather various context (e.g. user, body, etc) throughout the query building process, we need to mount them to some key at the end, so you can access them via `$.req.user`, for example.
+
+</details>
+
+<details>
+<summary>library</summary>
+
+You can specify the ACL library you use to construct the acl. Currently `role-acl` (v3 and below) and `casl` are supported.
 
 </details>
 
 ### Specifying action per query
 
 In addition to the above options, you can also specify the action per query. This is useful when you have custom actions in your ACL (such as `promote`). Just chain a `.action(customAction)` to the query and that will override the default action (`create`/`read`/`update`/`delete`) when checking access!
+
+## Notes on writing the ACL
+
+### Resource name
+
+The resource name is the class name (`model.constructor.name`).
+So if you have a `User` model, then the name of the resource that you should be referring it by in the ACL is `User`.
+
+### Sharing ACL between frontend and the backend
+
+The resources that are passed to this plugin in the backend are typically going to be wrapped in their respective model classes: e.g. `req.user` typically will be an instance of the `User` class, and when you use the default instance when calling `post.$query().authorize()...`, it'll be an instance of the `Post` class.
+
+So if you want to share your ACL between frontend and the backend, as the frontend doesn't have access to Objection models, any transformation you have on your models should be _symmetric_.
+
+For example, if you have `user.id` and `post.creatorId` and you hash ID's when you export it to JSON, you want to make sure if `user.id = post.creatorId = 1`, the transformed values are _also_ the same (`user.id = post.creatorId = XYZ`, for example).
+
+This also means that you _shouldn't_ rely on virtuals and asymmetrically-transformed fields on your ACL (if you want to use your ACL on the frontend, that is).
 
 ## Authorizing requests
 
