@@ -13,12 +13,10 @@ module.exports = (acl, opts) => {
     defaultRole: 'anonymous',
     unauthenticatedErrorCode: 401,
     unauthorizedErrorCode: 403,
-    resourceName: model => model.name,
     resourceAugments: { true: true, false: false, undefined: undefined },
     userFromResult: false,
     contextKey: 'req',
-    library: 'role-acl',
-    wrapClass: false
+    library: 'role-acl'
   }
   opts = Object.assign(defaultOpts, opts)
 
@@ -50,20 +48,11 @@ module.exports = (acl, opts) => {
           opts.resourceAugments,
           resource
         )
-        if (opts.wrapClass)
-          resource = this.modelClass().fromJson(resource, {
-            skipValidation: true
-          })
-        const resourceName = opts.resourceName(this.modelClass())
+        resource = this.modelClass().fromJson(resource, {
+          skipValidation: true
+        })
 
-        const access = lib.getAccess(
-          acl,
-          user,
-          resourceName,
-          resource,
-          action,
-          ctx
-        )
+        const access = lib.getAccess(acl, user, resource, action, ctx)
 
         // authorize request
         assert(
