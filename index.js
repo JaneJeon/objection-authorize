@@ -2,11 +2,11 @@ const assert = require('http-assert')
 const isEmpty = obj => !Object.keys(obj || {}).length
 const debug = require('debug')('objection-authorize')
 
-module.exports = (acl, opts) => {
+module.exports = (acl, library = 'role-acl', opts) => {
   if (!acl) throw new Error('acl is a required parameter!')
-  if (typeof acl.can !== 'function')
+  if (typeof library === 'object')
     throw new Error(
-      'did you pass the grants object directly instead of the access control instnace?'
+      'With v3, objection-authorize now has the signature (acl, library, opts)'
     )
 
   const defaultOpts = {
@@ -15,12 +15,11 @@ module.exports = (acl, opts) => {
     unauthorizedErrorCode: 403,
     resourceAugments: { true: true, false: false, undefined: undefined },
     userFromResult: false,
-    contextKey: 'req',
-    library: 'role-acl'
+    contextKey: 'req'
   }
   opts = Object.assign(defaultOpts, opts)
 
-  const lib = require(`./lib/${opts.library}`)
+  const lib = require(`./lib/${library}`)
 
   return Model => {
     class AuthQueryBuilder extends Model.QueryBuilder {

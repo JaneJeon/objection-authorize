@@ -36,6 +36,7 @@
     "objection": "1.X"
   },
   "devDependencies": {
+    "@casl/ability": "^3.2.0",
     "@types/jest": "^24.0.25",
     "codecov": "^3.6.1",
     "husky": "^3.1.0",
