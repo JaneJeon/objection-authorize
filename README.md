@@ -125,12 +125,9 @@ const opts = {
   defaultRole: 'anonymous',
   unauthenticatedErrorCode: 401,
   unauthorizedErrorCode: 403,
-  resourceName: model => model.name,
   resourceAugments: { true: true, false: false, undefined: undefined },
   userFromResult: false,
-  contextKey: 'req',
-  library: 'role-acl',
-  wrapClass: false
+  contextKey: 'req'
 }
 ```
 

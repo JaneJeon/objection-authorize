@@ -1,6 +1,8 @@
 const assert = require('http-assert')
 const isEmpty = obj => !Object.keys(obj || {}).length
 const debug = require('debug')('objection-authorize')
+const pick = require('lodash.pick')
+const omit = require('lodash.omit')
 
 module.exports = (acl, library = 'role-acl', opts) => {
   if (!acl) throw new Error('acl is a required parameter!')
@@ -41,17 +43,11 @@ module.exports = (acl, library = 'role-acl', opts) => {
         } = this.context()
         body = body || resource
         action = _action || action
-        const ctx = Object.assign(
-          {},
-          { [opts.contextKey]: { user, body } },
-          opts.resourceAugments,
-          resource
-        )
         resource = this.modelClass().fromJson(resource, {
           skipValidation: true
         })
 
-        const access = lib.getAccess(acl, user, resource, action, ctx)
+        const access = lib.getAccess(acl, user, resource, action, ctx, opts)
 
         // authorize request
         assert(
@@ -246,9 +242,6 @@ module.exports = (acl, library = 'role-acl', opts) => {
     }
 
     return class extends Model {
-      // used to filter model's attributes according to a user's read access.
-      // First pick the fields, and then filter them, as per:
-      // https://github.com/oscaroox/objection-visibility
       _filter (access) {
         const pickFields = lib.pickFields(access)
         const omitFields = lib.omitFields(access)
