@@ -46,7 +46,7 @@
     "lint-staged": "^9.5.0",
     "objection": "^1.6.11",
     "objection-visibility": "^0.4.0",
-    "prettier-standard": "^16.0.0",
+    "prettier-standard": "^16.1.0",
     "role-acl": "<4.0.0",
     "sqlite3": "^4.1.1"
   },
