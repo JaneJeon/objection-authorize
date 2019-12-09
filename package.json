@@ -48,7 +48,7 @@
     "objection-visibility": "^0.4.0",
     "prettier-standard": "^16.0.0",
     "role-acl": "<4.0.0",
-    "sqlite3": "^4.1.0"
+    "sqlite3": "^4.1.1"
   },
   "keywords": [
     "objection",
