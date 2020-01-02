@@ -15,13 +15,14 @@ module.exports = (acl, library) => {
 
   describe(`${library} plugin`, () => {
     beforeAll(async () => {
-      return knex.schema.createTable(User.tableName, table => {
+      await knex.schema.createTable(User.tableName, table => {
         table.increments()
         table.text('username')
         table.text('email')
         table.text('role')
         table.text('secrethiddenfield')
       })
+      await User.fetchTableMetadata()
     })
 
     let testUser

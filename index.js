@@ -1,23 +1,25 @@
 const assert = require('http-assert')
 const isEmpty = obj => !Object.keys(obj || {}).length
-const debug = require('debug')('objection-authorize')
 const pick = require('lodash.pick')
 const omit = require('lodash.omit')
 
 module.exports = (acl, library = 'role-acl', opts) => {
   if (!acl) throw new Error('acl is a required parameter!')
-  if (typeof library === 'object')
+  if (typeof library === 'object') {
     throw new Error(
-      'With v3, objection-authorize now has the signature (acl, library, opts)'
+      'objection-authorize@3 now has the signature (acl, library, opts)'
     )
+  }
 
   const defaultOpts = {
     defaultRole: 'anonymous',
     unauthenticatedErrorCode: 401,
     unauthorizedErrorCode: 403,
-    resourceAugments: { true: true, false: false, undefined: undefined },
     userFromResult: false,
-    contextKey: 'req'
+    // below are role-acl specific options
+    contextKey: 'req',
+    roleFromUser: user => user.role,
+    resourceAugments: { true: true, false: false, undefined: undefined }
   }
   opts = Object.assign(defaultOpts, opts)
 
@@ -31,27 +33,20 @@ module.exports = (acl, library = 'role-acl', opts) => {
 
       // wrappers around acl, querybuilder, and model
       _checkAccess (action, body) {
-        // _checkAccess may be called outside of authorization context
-        if (!this._shouldCheckAccess) return
-
-        debug('_checkAccess', action, body)
-        let {
+        const {
           _user: user,
           _resource: resource,
           _opts: opts,
           _action
         } = this.context()
-        body = body || resource
+        // allowed the specified action to override the default, inferred action
         action = _action || action
-        resource = this.modelClass().fromJson(resource, {
-          skipValidation: true
-        })
 
-        const access = lib.getAccess(acl, user, resource, action, ctx, opts)
+        const access = lib.getAccess(acl, user, resource, action, body, opts)
 
         // authorize request
         assert(
-          lib.isAuthorized(access),
+          lib.isAuthorized(access, action, resource),
           user.role === opts.defaultRole
             ? opts.unauthenticatedErrorCode
             : opts.unauthorizedErrorCode
@@ -60,125 +55,122 @@ module.exports = (acl, library = 'role-acl', opts) => {
         return access
       }
 
+      // convenience helper for insert/update/delete
+      _filterBody (action, body) {
+        if (!this._shouldCheckAccess) return body
+
+        const access = this._checkAccess(action, body)
+        const { _resource: resource } = this.context()
+
+        // there's no need to cache these fields because this isn't the read access.
+        const pickFields = lib.pickFields(access, action, resource)
+        const omitFields = lib.omitFields(access, action, resource)
+
+        if (pickFields.length) body = pick(body, pickFields)
+        if (omitFields.length) body = omit(body, omitFields)
+
+        return body
+      }
+
       // insert/patch/update/delete are the "primitive" query actions.
       // All other methods like insertAndFetch or deleteById are built on these.
 
       // automatically checks if you can create this resource, and if yes,
-      // restricts the body object to only the fields they're allowed to set
+      // restricts the body object to only the fields they're allowed to set.
       insert (body) {
-        debug('insert', body)
-        if (this._shouldCheckAccess)
-          body = this._checkAccess('create', body).filter(body)
+        return super.insert(this._filterBody('create', body))
+      }
 
-        return super.insert(body)
+      insertAndFetch (body) {
+        return super.insertAndFetch(this._filterBody('create', body))
       }
 
       patch (body) {
-        debug('patch', body)
-        if (this._shouldCheckAccess)
-          body = this._checkAccess('update', body).filter(body)
-
-        return super.patch(body)
+        return super.patch(this._filterBody('update', body))
       }
 
       patchAndFetch (body) {
-        debug('patchAndFetch', body)
-        if (this._shouldCheckAccess)
-          body = this._checkAccess('update', body).filter(body)
-
-        return super.patchAndFetch(body)
+        return super.patchAndFetch(this._filterBody('update', body))
       }
 
+      // istanbul ignore next
       patchAndFetchById (id, body) {
-        debug('patchAndFetchById', id, body)
-        if (this._shouldCheckAccess)
-          body = this._checkAccess('update', body).filter(body)
-
-        return super.patchAndFetchById(id, body)
+        return super.patchAndFetchById(id, this._filterBody('update', body))
       }
 
       // istanbul ignore next
       update (body) {
-        debug('update', body)
-        if (this._shouldCheckAccess)
-          body = this._checkAccess('update', body).filter(body)
-
-        return super.update(body)
+        return super.update(this._filterBody('update', body))
       }
 
       // istanbul ignore next
       updateAndFetch (body) {
-        debug('updateAndFetch', body)
-        if (this._shouldCheckAccess)
-          body = this._checkAccess('update', body).filter(body)
-
-        return super.updateAndFetch(body)
+        return super.updateAndFetch(this._filterBody('update', body))
       }
 
       // istanbul ignore next
       updateAndFetchById (id, body) {
-        debug('updateAndFetchById', id, body)
-        if (this._shouldCheckAccess)
-          body = this._checkAccess('update', body).filter(body)
-
-        return super.updateAndFetchById(id, body)
+        return super.updateAndFetchById(id, this._filterBody('update', body))
       }
 
       delete (body) {
-        debug('delete', body)
         this._checkAccess('delete', body)
-
         return super.delete()
       }
 
+      // istanbul ignore next
       deleteById (id, body) {
-        debug('deleteById', id, body)
-
-        return this.findById(id).delete(body)
+        this._checkAccess('delete', body)
+        return super.deleteById(id)
       }
 
       // specify a custom action, which takes precedence over the "default" action.
       action (_action) {
-        debug('action', _action)
         this.mergeContext({ _action })
-
         return this
       }
 
       // result is always an array, so we figure out if we should look at the result
       // as a single object instead by looking at whether .first() was called or not.
       first () {
-        debug('first')
         this.mergeContext({ _first: true })
-
         return super.first()
       }
 
       // THE magic method that schedules the actual authorization logic to be called
       // later down the line when the query is built and is ready to be executed.
       authorize (user, resource, optOverride) {
+        resource = resource || this.context()._instance || {}
+        // wrap the resource to give it all the custom methods & properties
+        // defined in the associating model class (e.g. Post, User).
+        resource = this.modelClass().fromJson(resource, {
+          skipValidation: true
+        })
+
         this.mergeContext({
           _user: Object.assign({ role: opts.defaultRole }, user),
-          _resource: resource || this.context()._instance || {},
+          _resource: resource,
           _opts: Object.assign({}, opts, optOverride),
           _authorize: true
         })
           // This is run AFTER the query has been completely built.
           // In other words, the query already checked create/update/delete access
           // by this point, and the only thing to check now is the read access,
-          // IF the resource is specified. Otherwise, it's delayed till the end!
+          // IF the resource is specified.
+          // Otherwise, we check the read access after the query has been run, on the
+          // query results as the resource.
           .runBefore(async (result, query) => {
             if (query.isFind() && !isEmpty(resource)) {
               const readAccess = query._checkAccess('read')
 
-              // store the read access just in case
+              // store the read access so that it can be reused after the query.
               query.mergeContext({ readAccess })
             }
 
             return result
           })
           .runAfter(async (result, query) => {
-            // there's no result object(s) to filter here
+            // If there's no result objects, we don't need to filter them.
             if (typeof result !== 'object' || !query._shouldCheckAccess)
               return result
 
@@ -192,15 +184,19 @@ module.exports = (acl, library = 'role-acl', opts) => {
               _readAccess: readAccess
             } = query.context()
 
-            // set the resource as the result if it's still not set!
+            // Set the resource as the result if it's still not set!
             // Note, since the resource needs to be singular, it can only be done
-            // when there's only one result!
-            // We're trusting that if the query returns an array of results,
+            // when there's only one result -
+            // we're trusting that if the query returns an array of results,
             // then you've already filtered it according to the user's read access
-            // in the query (instead of relying on the ACL to do it) since it's costly!
-            if (isEmpty(resource)) {
-              if (!isArray) query.mergeContext({ _resource: result })
-              else if (first) query.mergeContext({ _resource: result[0] })
+            // in the query (instead of relying on the ACL to do it) since it's costly
+            // to check every single item in the result array...
+            if (isEmpty(resource) && (!isArray || first)) {
+              resource = isArray ? result[0] : result
+              resource = query.modelClass().fromJson(resource, {
+                skipValidation: true
+              })
+              query.mergeContext({ _resource: resource })
             }
 
             // after create/update operations, the returning result may be the requester
@@ -209,7 +205,7 @@ module.exports = (acl, library = 'role-acl', opts) => {
               !isArray &&
               opts.userFromResult
             ) {
-              // check if we the user is changed
+              // check if the user is changed
               const resultIsUser =
                 typeof opts.userFromResult === 'function'
                   ? opts.userFromResult(user, result)
@@ -232,8 +228,8 @@ module.exports = (acl, library = 'role-acl', opts) => {
             // 1. arrays don't have toJSON() method,
             // 2. objection-visibility doesn't work without calling $formatJson()
             return isArray
-              ? result.map(model => model._filter(readAccess))
-              : result._filter(readAccess)
+              ? result.map(model => model._filterModel(readAccess))
+              : result._filterModel(readAccess)
           })
 
         // for chaining
@@ -242,9 +238,10 @@ module.exports = (acl, library = 'role-acl', opts) => {
     }
 
     return class extends Model {
-      _filter (access) {
-        const pickFields = lib.pickFields(access)
-        const omitFields = lib.omitFields(access)
+      // filter the model instance directly
+      _filterModel (readAccess) {
+        const pickFields = lib.pickFields(readAccess, 'read', this)
+        const omitFields = lib.omitFields(readAccess, 'read', this)
 
         if (pickFields.length) this.$pick(pickFields)
         if (omitFields.length) this.$omit(omitFields)

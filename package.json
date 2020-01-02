@@ -29,13 +29,9 @@
     "singleQuote": true
   },
   "dependencies": {
-    "debug": "^4.1.1",
     "http-assert": "^1.4.1",
     "lodash.omit": "^4.5.0",
     "lodash.pick": "^4.4.0"
-  },
-  "peerDependencies": {
-    "objection": "1.X"
   },
   "devDependencies": {
     "@casl/ability": "^3.2.0",
@@ -50,7 +46,8 @@
     "objection": "^1.6.11",
     "objection-visibility": "^0.4.0",
     "prettier-standard": "^16.1.0",
-    "role-acl": "<4.0.0",
+    "role-acl-3": "npm:role-acl@<4.0.0",
+    "role-acl-4": "npm:role-acl@>=4.3.2",
     "sqlite3": "^4.1.1"
   },
   "keywords": [

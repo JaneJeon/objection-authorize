@@ -1,8 +1,7 @@
 const pluginTest = require('./utils/plugin-test')
-const { AbilityBuilder, Ability } = require('@casl/ability')
+const { AbilityBuilder } = require('@casl/ability')
 
-// TODO: do I need to put the deny before or after the allow?
-function acl (user, resource, action, ctx) {
+function acl (user, resource, action, body, opts) {
   return AbilityBuilder.define((allow, forbid) => {
     allow('read', 'User')
     forbid('read', 'User', ['email', 'secrethiddenfield'])

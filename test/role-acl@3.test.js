@@ -1,5 +1,5 @@
 const pluginTest = require('./utils/plugin-test')
-const RoleAcl = require('role-acl')
+const RoleAcl = require('role-acl-3')
 
 // these are some sample grants that you might use for your app in regards to user rights
 const anonymous = {
@@ -44,4 +44,4 @@ const user = {
   ]
 }
 
-pluginTest(new RoleAcl({ user, anonymous }), 'role-acl')
+pluginTest(new RoleAcl({ user, anonymous }), 'role-acl@3')
