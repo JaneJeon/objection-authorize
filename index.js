@@ -31,6 +31,19 @@ module.exports = (acl, library = 'role-acl', opts) => {
         return this.context()._authorize
       }
 
+      // Wrap the resource to give it all the custom methods & properties
+      // defined in the associating model class (e.g. Post, User).
+      set _resource (_resource) {
+        // Wrap the resource only if it's not an instance of a model already.
+        // Rather than checking if the resource is instance of the Model base class,
+        // we are simply checking that the resource has a $query property.
+        if (!_resource || !_resource.$query)
+          _resource = this.modelClass().fromJson(_resource, {
+            skipValidation: true
+          })
+        this.mergeContext({ _resource })
+      }
+
       // wrappers around acl, querybuilder, and model
       _checkAccess (action, body) {
         const {
@@ -141,15 +154,9 @@ module.exports = (acl, library = 'role-acl', opts) => {
       // later down the line when the query is built and is ready to be executed.
       authorize (user, resource, optOverride) {
         resource = resource || this.context()._instance || {}
-        // wrap the resource to give it all the custom methods & properties
-        // defined in the associating model class (e.g. Post, User).
-        resource = this.modelClass().fromJson(resource, {
-          skipValidation: true
-        })
-
+        this._resource = resource
         this.mergeContext({
           _user: Object.assign({ role: opts.defaultRole }, user),
-          _resource: resource,
           _opts: Object.assign({}, opts, optOverride),
           _authorize: true
         })
