@@ -1,4 +1,4 @@
-const assert = require('http-assert')
+const httpError = require('http-errors')
 const isEmpty = obj => !Object.keys(obj || {}).length
 const pick = require('lodash.pick')
 const omit = require('lodash.omit')
@@ -58,12 +58,12 @@ module.exports = (acl, library = 'role-acl', opts) => {
         const access = lib.getAccess(acl, user, resource, action, body, opts)
 
         // authorize request
-        assert(
-          lib.isAuthorized(access, action, resource),
-          user.role === opts.defaultRole
-            ? opts.unauthenticatedErrorCode
-            : opts.unauthorizedErrorCode
-        )
+        if (!lib.isAuthorized(access, action, resource))
+          throw httpError(
+            user.role === opts.defaultRole
+              ? opts.unauthenticatedErrorCode
+              : opts.unauthorizedErrorCode
+          )
 
         return access
       }

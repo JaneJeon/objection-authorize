@@ -29,7 +29,7 @@
     "singleQuote": true
   },
   "dependencies": {
-    "http-assert": "^1.4.1",
+    "http-errors": "^1.7.3",
     "lodash.omit": "^4.5.0",
     "lodash.pick": "^4.4.0"
   },

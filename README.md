@@ -18,12 +18,12 @@
 
 It automatically takes away a lot of the manual wiring that you'd need to do if you were to implement your access control on a request/route level, including:
 
-- filtering request body
 - checking the user against the resource and the ACL
+- filtering request body according to the action and the user's access
 - figuring out _which_ resource to check the user's grants against automatically(!)
 - even filtering the result from a query according to a user's read access!
 
-Not sure why you would need this? Read below for examples or [see here](https://janejeon.com/integrating-access-control-to-your-node-js-apps) to learn just how complex access control can be and how you can manage said complexity with this plugin!
+Not sure why you would need this? Read below for examples or [see here](https://janejeon.dev/integrating-access-control-to-your-node-js-apps) to learn just how complex access control can be and how you can manage said complexity with this plugin!
 
 ### 🏠 [Homepage](https://github.com/JaneJeon/objection-authorize)
 
@@ -36,50 +36,61 @@ yarn add objection objection-authorize # or
 npm install objection objection-authorize --save
 ```
 
-And you can install either `role-acl` or `@casl/ability` as your authorization framework. Note that `role-acl` v4 or above will NOT be supported as the library author eliminated ALL synchronous methods outright!
+And you can install either `role-acl` or `@casl/ability` as your authorization framework. Note that `role-acl` v4 or above is NOT supported as the library author eliminated ALL synchronous methods outright!
 
 ## Changelog
 
-Starting from 1.0 release, all changes will be documented at the [releases page](https://github.com/JaneJeon/objection-authorize/releases).
+Starting from the 1.0 release, all changes will be documented at the [releases page](https://github.com/JaneJeon/objection-authorize/releases).
 
 ## Usage
 
 Plugging in `objection-authorize` to work with your existing authorization setup is as easy as follows:
 
 ```js
-const AccessControl = require('role-acl') // or
-const AccessControl = require('accesscontrol')
-const acl = new AccessControl(grants) // the grants object
+const acl = ... // see below for defining acl
 
 const { Model } = require('objection')
-const authorize = require('objection-authorize')(acl, opts)
+const authorize = require('objection-authorize')(acl, library, opts) // choose role-acl@3 or casl for library
 
 class Post extends authorize(Model) {
   // that's it! This is just a regular objection.js model class
 }
 ```
 
-And that adds a "magic" `authorize(user, resource, opts)` method that can be chained to provide access control and authorize requests. Note that if you're using the method, it MUST be called _before_ any insert/patch/update/delete calls:
+And that adds a "magic" `authorize(user, resource, opts)` method that can be chained to provide access control and authorize requests.
+
+Calling this method will:
+
+1. check that a user is allowed to perform an action based on the acl, resource, action, body, & the user and throw an error if they're not allowed to.
+2. filter the request body (i.e. the thing you pass to `create()/update()/delete()`) according to the user's access (this is not relevant for GET operations)
+3. if there's a returning result (e.g. you called `.returning('*')` or `(insert|update)AndFetch(byId)`), filters that according to a user's read access
+
+Note that the method must be called _before_ any insert/patch/update/delete calls:
 
 ```js
 const post = await Post.query()
-  .authorize(user)
-  .insert({ title: 'hello!' }) // authorize a POST request
+  .authorize(user, resource, opts)
+  .insertAndFetch({ title: 'hello!' }) // authorize a POST request
 await Post.query()
-  .authorize(user)
+  .authorize(user, resource, opts)
   .findById(1) // authorize a GET request
 await post
   .$query()
-  .authorize(user)
-  .patch(body) // authorize a PATCH request
+  .authorize(user, resource, opts)
+  .patch(body)
+  .returning('*') // authorize a PATCH request
 await post
   .$query()
-  .authorize(user)
+  .authorize(user, resource, opts)
   .delete() // authorize a DELETE request
 // it's THAT simple!
 ```
 
-In absence of the `resource` parameter, this plugin attempts to load the resource from the model instance, so if you've already fetched a resource and are calling `$query()` or `$relatedQuery()` to build a query, that will be used as the resource automatically:
+## Resource
+
+A resource can be a plain object or an instance of a `Model` class (or any of its subclasses) that specifies _what_ the user is trying to access.
+
+In absence of the `resource` parameter in `authorize(user, resource, opts)`, this plugin attempts to load the resource from the model instance, so if you've already fetched a resource and are calling `$query()` to build a query, that will be used as the resource automatically:
 
 ```js
 const post = await Post.query().findById(1)
@@ -97,15 +108,85 @@ await Post.query()
   .findById(1)
 ```
 
-Furthermore, if you're creating a resource (i.e. `insert()`), then you do not have to specify the resource, though the result from the query will be filtered according to the user's read access.
+Furthermore, if you're creating a resource (i.e. `insert()`), you do not have to specify the resource, though the result from the query will be filtered according to the user's read access.
 
-In general, if your query returns a resource or a list of resources, then that result set will be filtered according to the user's read access.
+In general, you do not have to specify the resource parameter unless you want to force the plugin into using a particular resource.
 
-For more examples, [see here](https://github.com/JaneJeon/objection-authorize/blob/master/index.test.js).
+[See here for more examples](https://github.com/JaneJeon/objection-authorize/blob/master/test/utils/plugin-test.js).
 
-## Authorization Context
+## Defining the ACL
 
-Due to the limitations of both `accesscontrol` and `role-acl`, authorization context (i.e. the right side of access condition arguments) combines the actual resource object, requester, the query object (the stuff you pass to `Model.query().update(obj)` and the likes), resource argument options (global and local) into one object.
+### role-acl
+
+For `role-acl@3`, just define the acl as you normally would. Note that you're meant to pass the formed acl instead of the grants object:
+
+```js
+const RoleAcl = require('role-acl')
+const acl = new RoleAcl(grants) // if you have a grants object, or
+const acl = new RoleAcl()
+acl
+  .grant('user')
+  .execute('create')
+  .on('Video') // just chain it as usual
+```
+
+### @casl/ability
+
+For `casl`, because it doesn't allow dynamically checking against any resource or action, we have to wrap it with a function, and that function takes in `(user, resource, action, body, opts)` and returns an _instance_ of ability.
+
+This is essentially the same as the `defineAbilitiesFor(user)` method described [in the casl docs](https://stalniy.github.io/casl/abilities/2017/07/20/define-abilities.html), but obviously with a lot more context.
+
+So you might define your ability like this (and it doesn't matter if you use `AbilityBuilder` or `Ability`):
+
+```js
+const { AbilityBuilder } = require('@casl/ability')
+
+function acl (user, resource, action, body, opts) {
+  return AbilityBuilder.define((allow, forbid) => {
+    if (user.isAdmin()) {
+      allow('manage', 'all')
+    } else {
+      allow('read', 'all')
+    }
+  })
+}
+```
+
+If you want to cut down on the time it takes to check access, one thing you might want to do is to use the `resource` parameter to ONLY define rules relevant to that resource:
+
+```js
+function acl (user, resource, action, body, opts) {
+  return AbilityBuilder.define((allow, forbid) => {
+    switch (resource) {
+      case 'User':
+        allow('read', 'User')
+        forbid('read', 'User', ['email'])
+        break
+      case 'Post':
+        allow('create', 'Post')
+        forbid('read', 'Post', { private: true })
+    }
+  })
+}
+```
+
+### Note on Resource Names
+
+_For both libraries_, note that the resource name IS the corresponding model's name. So if you have a model class `Post`, you should be referring to that resource as `Post` and not `post` in your ACL definition.
+
+### Note on Sharing the ACL between frontend and the backend
+
+The resources that are passed to this plugin in the backend are typically going to be wrapped in their respective model classes: e.g. `req.user` typically will be an instance of the `User` class, and the resource will _always_ be wrapped with its respective class.
+
+So if you want to share your ACL between frontend and the backend, as the frontend doesn't have access to Objection models, any transformation you have on your models should be _symmetric_.
+
+For example, if you have `user.id` and `post.creatorId` and you hash ID's when you export it to JSON, you want to make sure if `user.id = post.creatorId = 1`, the transformed values are _also_ the same (`user.id = post.creatorId = XYZ`, for example).
+
+This also means that you _shouldn't_ rely on virtuals and asymmetrically-transformed fields on your ACL (if you want to use your ACL on the frontend, that is).
+
+## Authorization Context (for role-acl only)
+
+Due to the limitations of `role-acl`, authorization context (i.e. the right side of access condition arguments) combines the actual resource object, requester, the query object (the stuff you pass to `Model.query().update(obj)` and the likes), resource argument options (global and local) into one object.
 
 This does mean that there's a potential for key conflicts. In that case, the precedence is as follows:
 
@@ -116,7 +197,7 @@ This does mean that there's a potential for key conflicts. In that case, the pre
 
 So if resource (priority 1) had a property called `req`, then the requester and query object (priority 2) would be overwritten and be inaccessible under `$.req.(user|body)`.
 
-## Configuration
+## Options
 
 You can pass an options object as the second parameter in `objectionAuthorize(acl, opts)` when initializing the plugin. The options objects is structured as follows (the given values are the default):
 
@@ -125,9 +206,11 @@ const opts = {
   defaultRole: 'anonymous',
   unauthenticatedErrorCode: 401,
   unauthorizedErrorCode: 403,
-  resourceAugments: { true: true, false: false, undefined: undefined },
   userFromResult: false,
-  contextKey: 'req'
+  // below are role-acl specific options
+  contextKey: 'req',
+  roleFromUser: user => user.role,
+  resourceAugments: { true: true, false: false, undefined: undefined }
 }
 ```
 
@@ -153,15 +236,6 @@ Error code thrown when an unauthenticated user is not allowed to access a resour
 <summary>unauthorizedErrorCode</summary>
 
 Error code thrown when an authenticated user is not allowed to access a resource.
-
-</details>
-
-<details>
-<summary>resourceArguments</summary>
-
-Since neither role-acl nor accesscontrol allow you to _just_ check the request body (they don't parse the `$.foo.bar` syntax for the ACL rule keys), if you want to check _only_ the request, you need to put custom properties.
-
-So the default allows checks such as `{Fn: 'EQUALS', args: {true: $.req.body.confirm}}` (useful when trying to require that a user confirm deletion of a resource, for example) by attaching the "true" and "false" values as part of the property of the resource!!
 
 </details>
 
@@ -193,32 +267,24 @@ As we gather various context (e.g. user, body, etc) throughout the query buildin
 </details>
 
 <details>
-<summary>library</summary>
+<summary>roleFromUser</summary>
 
-You can specify the ACL library you use to construct the acl. Currently `role-acl` (v3 and below) and `casl` are supported.
+With `casl`, because we're wrapping the acl in a function, we can extract the role from the user however we'd like. However, for `role-acl`, we need to extract a single string. This option is here just in case you have user role under a different key than `user.role`.
+
+</details>
+
+<details>
+<summary>resourceArguments</summary>
+
+Since neither role-acl nor accesscontrol allow you to _just_ check the request body (they don't parse the `$.foo.bar` syntax for the ACL rule keys), if you want to check _only_ the request, you need to put custom properties.
+
+So the default allows checks such as `{Fn: 'EQUALS', args: {true: $.req.body.confirm}}` (useful when trying to require that a user confirm deletion of a resource, for example) by attaching the "true" and "false" values as part of the property of the resource!!
 
 </details>
 
 ### Specifying action per query
 
 In addition to the above options, you can also specify the action per query. This is useful when you have custom actions in your ACL (such as `promote`). Just chain a `.action(customAction)` to the query and that will override the default action (`create`/`read`/`update`/`delete`) when checking access!
-
-## Notes on writing the ACL
-
-### Resource name
-
-The resource name is the class name (`model.constructor.name`).
-So if you have a `User` model, then the name of the resource that you should be referring it by in the ACL is `User`.
-
-### Sharing ACL between frontend and the backend
-
-The resources that are passed to this plugin in the backend are typically going to be wrapped in their respective model classes: e.g. `req.user` typically will be an instance of the `User` class, and when you use the default instance when calling `post.$query().authorize()...`, it'll be an instance of the `Post` class.
-
-So if you want to share your ACL between frontend and the backend, as the frontend doesn't have access to Objection models, any transformation you have on your models should be _symmetric_.
-
-For example, if you have `user.id` and `post.creatorId` and you hash ID's when you export it to JSON, you want to make sure if `user.id = post.creatorId = 1`, the transformed values are _also_ the same (`user.id = post.creatorId = XYZ`, for example).
-
-This also means that you _shouldn't_ rely on virtuals and asymmetrically-transformed fields on your ACL (if you want to use your ACL on the frontend, that is).
 
 ## Authorizing requests
 
@@ -248,6 +314,7 @@ app
         userFromResult: true // include this to "update" the requester so that they can see their email
       })
       .insert(req.body)
+      .returning('*')
 
     // then login with the user...
   })
