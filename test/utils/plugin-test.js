@@ -1,91 +1,29 @@
-const plugin = require('.')
-const { Model } = require('objection')
-const visibility = require('objection-visibility').default
-const knexjs = require('knex')
-const RoleAcl = require('role-acl')
+const plugin = require('../..')
+const BaseModel = require('./base-model')
+const knex = require('./knex')
 
-const knex = knexjs({
-  client: 'sqlite3',
-  connection: { filename: ':memory:' },
-  useNullAsDefault: true
-})
+module.exports = (acl, library) => {
+  class User extends plugin(acl, library)(BaseModel) {
+    static get tableName () {
+      return `users-${library}`
+    }
 
-Model.knex(knex)
-
-class BaseModel extends visibility(Model) {
-  static get tableName () {
-    return 'users'
+    static get hidden () {
+      return ['id']
+    }
   }
 
-  static get hidden () {
-    return ['id']
-  }
-}
-
-// these are some sample grants that you might use for your app in regards to user rights
-const anonymous = {
-  grants: [
-    {
-      resource: 'User',
-      action: 'read',
-      attributes: ['*', '!email', '!secrethiddenfield']
-    },
-    {
-      resource: 'User',
-      action: 'create',
-      attributes: ['*', '!id']
-    }
-  ]
-}
-const user = {
-  grants: [
-    {
-      resource: 'User',
-      action: 'read',
-      attributes: ['*', '!email', '!secrethiddenfield']
-    },
-    {
-      resource: 'User',
-      action: 'read',
-      attributes: ['email'],
-      condition: { Fn: 'EQUALS', args: { id: '$.req.user.id' } }
-    },
-    {
-      resource: 'User',
-      action: 'update',
-      attributes: ['*', '!id'],
-      condition: { Fn: 'EQUALS', args: { id: '$.req.user.id' } }
-    },
-    {
-      resource: 'User',
-      action: 'delete',
-      condition: { Fn: 'EQUALS', args: { id: '$.req.user.id' } }
-    }
-  ]
-}
-
-describe('objection-authorize', () => {
-  beforeAll(async () => {
-    return knex.schema.createTable('users', table => {
-      table.increments()
-      table.text('username')
-      table.text('email')
-      table.text('role')
-      table.text('secrethiddenfield')
+  describe(`${library} plugin`, () => {
+    beforeAll(async () => {
+      await knex.schema.createTable(User.tableName, table => {
+        table.increments()
+        table.text('username')
+        table.text('email')
+        table.text('role')
+        table.text('secrethiddenfield')
+      })
+      await User.fetchTableMetadata()
     })
-  })
-
-  test('requires acl', () => {
-    expect(() => plugin()(BaseModel)).toThrow()
-  })
-
-  test('errors when you pass the grants object directly', () => {
-    expect(() => plugin({ user, anonymous })(BaseModel)).toThrow()
-  })
-
-  describe('when using default options', () => {
-    const acl = new RoleAcl({ user, anonymous })
-    class User extends plugin(acl, { contextKey: 'req' })(BaseModel) {}
 
     let testUser
     const userData = {
@@ -207,4 +145,4 @@ describe('objection-authorize', () => {
       })
     })
   })
-})
+}
