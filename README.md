@@ -14,7 +14,7 @@
 [![Standard code style](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 [![Prettier code style](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
 
-> &#34;magical&#34; access control integrated with objection.js
+> isomorphic, &#34;magical&#34; access control integrated with objection.js
 
 It automatically takes away a lot of the manual wiring that you'd need to do if you were to implement your access control on a request/route level, including:
 
@@ -36,7 +36,7 @@ yarn add objection objection-authorize # or
 npm install objection objection-authorize --save
 ```
 
-And you can install either `role-acl` or `@casl/ability` as your authorization framework. Note that `role-acl` v4 or above is NOT supported as the library author eliminated ALL synchronous methods outright!
+And you can install either [role-acl](https://github.com/tensult/role-acl) or [@casl/ability](https://github.com/stalniy/casl) as your authorization framework. Note that `role-acl>=4 <4.3.2` (that is every v4 release before v4.3.2) is NOT supported as the library author just dropped synchronous acl support overnight.
 
 ## Changelog
 
@@ -50,7 +50,7 @@ Plugging in `objection-authorize` to work with your existing authorization setup
 const acl = ... // see below for defining acl
 
 const { Model } = require('objection')
-const authorize = require('objection-authorize')(acl, library, opts) // choose role-acl@3 or casl for library
+const authorize = require('objection-authorize')(acl, library, opts) // choose role-acl@3, role-acl@4, or casl for library
 
 class Post extends authorize(Model) {
   // that's it! This is just a regular objection.js model class
@@ -118,7 +118,7 @@ In general, you do not have to specify the resource parameter unless you want to
 
 ### role-acl
 
-For `role-acl@3`, just define the acl as you normally would. Note that you're meant to pass the formed acl instead of the grants object:
+For `role-acl`, just define the acl as you normally would. Note that you're meant to pass the formed acl instead of the grants object:
 
 ```js
 const RoleAcl = require('role-acl')
