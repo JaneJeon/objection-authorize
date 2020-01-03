@@ -273,7 +273,7 @@ With `casl`, because we're wrapping the acl in a function, we can extract the ro
 </details>
 
 <details>
-<summary>resourceArguments</summary>
+<summary>resourceAugments</summary>
 
 Since neither role-acl nor accesscontrol allow you to _just_ check the request body (they don't parse the `$.foo.bar` syntax for the ACL rule keys), if you want to check _only_ the request, you need to put custom properties.
 
