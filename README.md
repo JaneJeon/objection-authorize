@@ -156,7 +156,7 @@ If you want to cut down on the time it takes to check access, one thing you migh
 ```js
 function acl (user, resource, action, body, opts) {
   return AbilityBuilder.define((allow, forbid) => {
-    switch (resource) {
+    switch (resource.constructor.name) {
       case 'User':
         allow('read', 'User')
         forbid('read', 'User', ['email'])
