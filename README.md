@@ -15,7 +15,7 @@
 
 > isomorphic, &#34;magical&#34; access control integrated with objection.js
 
-It automatically takes away a lot of the manual wiring that you'd need to do if you were to implement your access control on a request/route level, including:
+This plugin automatically takes away a lot of the manual wiring that you'd need to do if you were to implement your access control on a request/route level, including:
 
 - checking the user against the resource and the ACL
 - filtering request body according to the action and the user's access
