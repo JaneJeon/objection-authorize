@@ -37,6 +37,8 @@ npm install objection objection-authorize --save
 
 And you can install either [role-acl](https://github.com/tensult/role-acl) or [@casl/ability](https://github.com/stalniy/casl) as your authorization framework. Note that `role-acl>=4 <4.3.2` (that is every v4 release before v4.3.2) is NOT supported as the library author just dropped synchronous acl support overnight.
 
+**NOTE**: this plugin works with and is tested against _both_ objection v1 and v2!
+
 ## Changelog
 
 Starting from the 1.0 release, all changes will be documented at the [releases page](https://github.com/JaneJeon/objection-authorize/releases).
