@@ -46,6 +46,8 @@ module.exports = (acl, library = 'role-acl', opts) => {
 
       // wrappers around acl, querybuilder, and model
       _checkAccess (action, body) {
+        if (!this._shouldCheckAccess) return body
+
         const {
           _user: user,
           _resource: resource,

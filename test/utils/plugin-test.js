@@ -146,6 +146,10 @@ module.exports = (acl, library) => {
               .authorize(testUser)
               .delete()
           })
+
+          test("doesn't break non-authorize calls", async () => {
+            await User.query().deleteById(5)
+          })
         })
       })
     })
