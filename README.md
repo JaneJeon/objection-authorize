@@ -181,7 +181,7 @@ So if you want to share your ACL between frontend and the backend, as the fronte
 
 For example, if you have `user.id` and `post.creatorId` and you hash ID's when you export it to JSON, you want to make sure if `user.id = post.creatorId = 1`, the transformed values are _also_ the same (`user.id = post.creatorId = XYZ`, for example).
 
-This also means that you _shouldn't_ rely on virtuals and asymmetrically-transformed fields on your ACL (if you want to use your ACL on the frontend, that is).
+This also means that you _shouldn't_ rely on virtuals and asymmetrically-transformed fields on your ACL (if you want to use your ACL on the frontend, that is). For an example of symmetric transformation out in the wild, see https://github.com/JaneJeon/objection-hashid.
 
 ## Authorization Context (for role-acl only)
 
