@@ -1,0 +1,44 @@
+name: Build
+on: [push]
+env:
+  CI: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [10.X, 12.X]
+
+    steps:
+      - uses: actions/checkout@v1
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Restore Cache
+        id: cache
+        uses: actions/cache@v1
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ matrix.node-version }}-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: ${{ runner.os }}-node-${{ matrix.node-version }}-
+      - name: Install Dependencies
+        run: yarn --frozen-lockfile
+        if: steps.cache.outputs.cache-hit != 'true'
+
+      - name: Lint
+        run: yarn lint
+      - name: Test
+        run: yarn test --coverage --ci --runInBand --reporters=default --reporters=jest-junit --forceExit
+      - name: Archive Test Results
+        # if: failure()
+        uses: actions/upload-artifact@v1
+        with:
+          name: Test Report
+          path: junit.xml
+      - name: Test Coverage
+        run: yarn coverage
+        if: matrix.node-version == '12.X'

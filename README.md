@@ -1,6 +1,7 @@
 <h1 align="center">Welcome to objection-authorize 👋</h1>
 
 [![CircleCI](https://img.shields.io/circleci/build/github/JaneJeon/objection-authorize)](https://circleci.com/gh/JaneJeon/objection-authorize)
+[![GitHub](https://github.com/JaneJeon/objection-authorize/actions)](https://github.com/JaneJeon/objection-authorize/workflows/Build/badge.svg)
 [![codecov](https://codecov.io/gh/JaneJeon/objection-authorize/branch/master/graph/badge.svg)](https://codecov.io/gh/JaneJeon/objection-authorize)
 [![NPM](https://img.shields.io/npm/v/objection-authorize)](https://www.npmjs.com/package/objection-authorize)
 [![Downloads](https://img.shields.io/npm/dt/objection-authorize)](https://www.npmjs.com/package/objection-authorize)
