@@ -13,7 +13,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [10.X, 12.X]
+        node-version: ['10', '12']
 
     steps:
       - uses: actions/checkout@v1
@@ -43,6 +43,9 @@ jobs:
         with:
           name: Test Report
           path: junit.xml
+
       - name: Test Coverage
-        run: yarn coverage
-        if: matrix.node-version == '12.X' && github.ref == 'refs/heads/master'
+        uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+        if: matrix.node-version == '12' && github.ref == 'refs/heads/master'
