@@ -9,6 +9,7 @@
   "scripts": {
     "test": "jest",
     "test:watch": "yarn test --watch",
+    "test:ci": "yarn test --ci --reporters=default --reporters=jest-junit",
     "lint": "prettier-standard --check --lint"
   },
   "husky": {

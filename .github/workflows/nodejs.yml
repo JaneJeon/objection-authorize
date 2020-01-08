@@ -35,8 +35,14 @@ jobs:
 
       - name: Lint
         run: yarn lint
+
       - name: Test
-        run: yarn test --coverage --ci --runInBand --reporters=default --reporters=jest-junit --forceExit
+        run: yarn test:ci
+        if: matrix.node-version != '12'
+      - name: Test With Coverage
+        run: yarn test:ci --coverage
+        if: matrix.node-version == '12'
+
       - name: Archive Test Results
         # if: failure()
         uses: actions/upload-artifact@v1
@@ -44,7 +50,7 @@ jobs:
           name: Test Report
           path: junit.xml
 
-      - name: Test Coverage
+      - name: Upload Coverage
         uses: codecov/codecov-action@v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
