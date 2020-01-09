@@ -171,6 +171,28 @@ function acl (user, resource, action, body, opts) {
 }
 ```
 
+#### IMPORTANT NOTE WHEN USING CASL
+
+One key difference between `casl` and `role-acl` is that `role-acl` has a concept of _negating_ a field (e.g. `!field` means filter _out_ the `field`).
+
+This means that `casl` only has a notion of what fields _should_ be included. However, it can't know what fields need to be included from just looking at the ACL, and we have no way of reliably getting the list of fields for a model without calling a static model method, `tableMetadata()`.
+
+The good news is that this is _synchronous_, allowing it to fit within the `objection-authorize` plugin lifecycle. The bad news is that this is fetched from a cache, and we need to _pre-populate_ the cache BEFORE we even call `.authorize()` even once!
+
+So that means before you start your server, you should `await Model.fetchTableMetadata()` for _all_ of your model classes!
+
+For example:
+
+```js
+const modelClasses = [User, Post, Comment]
+Promise.all(
+  modelClasses.map(modelClass => modelClass.fetchTableMetadata())
+).then(() => {
+  // start your server
+  app.listen(3000)
+})
+```
+
 ### Note on Resource Names
 
 _For both libraries_, note that the resource name IS the corresponding model's name. So if you have a model class `Post`, you should be referring to that resource as `Post` and not `post` in your ACL definition.
