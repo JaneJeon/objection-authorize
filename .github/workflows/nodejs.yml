@@ -35,6 +35,7 @@ jobs:
 
       - name: Lint
         run: yarn lint
+        if: matrix.node-version == '12'
 
       - name: Test
         run: yarn test:ci
