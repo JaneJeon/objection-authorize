@@ -39,7 +39,7 @@
     "husky": "^4.0.10",
     "jest": "^24.9.0",
     "jest-junit": "^10.0.0",
-    "knex": "^0.20.7",
+    "knex": "^0.20.8",
     "lint-staged": "^9.5.0",
     "objection-1": "npm:objection@1",
     "objection-2": "npm:objection@2",
