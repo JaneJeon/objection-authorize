@@ -46,7 +46,8 @@
     "prettier-standard": "^16.1.0",
     "role-acl-3": "npm:role-acl@<4.0.0",
     "role-acl-4": "npm:role-acl@>=4.3.2",
-    "sqlite3": "^4.1.1"
+    "sqlite3": "^4.1.1",
+    "typescript": "^3.8.3"
   },
   "peerDependencies": {
     "objection": "^1 || ^2"
