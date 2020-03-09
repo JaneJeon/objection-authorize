@@ -43,7 +43,7 @@
     "objection-1": "npm:objection@1",
     "objection-2": "npm:objection@2",
     "objection-visibility": "^1.0.0",
-    "prettier-standard": "^16.1.0",
+    "prettier-standard": "^16.2.1",
     "role-acl-3": "npm:role-acl@<4.0.0",
     "role-acl-4": "npm:role-acl@>=4.3.2",
     "sqlite3": "^4.1.1"
