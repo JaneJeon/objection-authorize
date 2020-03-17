@@ -9,8 +9,8 @@
   "scripts": {
     "test": "jest",
     "test:watch": "yarn test --watch",
-    "test:ci": "yarn test --ci --reporters=default --reporters=jest-junit",
-    "lint": "prettier-standard --check --lint"
+    "lint": "prettier-standard --check --lint",
+    "coverage": "is-ci && codecov"
   },
   "husky": {
     "hooks": {
@@ -35,7 +35,9 @@
   "devDependencies": {
     "@casl/ability": "^3.2.0",
     "@types/jest": "^25.1.4",
+    "codecov": "^3.6.5",
     "husky": "^4.2.3",
+    "is-ci": "^2.0.0",
     "jest": "^25.1.0",
     "jest-junit": "^10.0.0",
     "knex": "^0.20.11",
