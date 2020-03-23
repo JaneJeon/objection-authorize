@@ -40,7 +40,7 @@
     "is-ci": "^2.0.0",
     "jest": "^25.1.0",
     "jest-junit": "^10.0.0",
-    "knex": "^0.20.11",
+    "knex": "^0.20.13",
     "lint-staged": "^10.0.8",
     "objection-1": "npm:objection@1",
     "objection-2": "npm:objection@2",
