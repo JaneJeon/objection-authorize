@@ -48,9 +48,10 @@ jobs:
         with:
           name: Test Report
           path: junit.xml
+        if: matrix.node-version == '12'
 
       - name: Upload Coverage
         uses: codecov/codecov-action@v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/master' && matrix.node-version == '12'
