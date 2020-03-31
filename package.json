@@ -9,23 +9,7 @@
   "scripts": {
     "test": "jest",
     "test:watch": "yarn test --watch",
-    "lint": "prettier-standard --check --lint",
-    "coverage": "is-ci && codecov"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged",
-      "pre-push": "yarn test"
-    }
-  },
-  "lint-staged": {
-    "**/*": [
-      "prettier-standard --lint"
-    ]
-  },
-  "prettier": {
-    "semi": false,
-    "singleQuote": true
+    "lint": "prettier-standard --check --lint"
   },
   "dependencies": {
     "http-errors": "^1.7.3",
@@ -35,7 +19,6 @@
   "devDependencies": {
     "@casl/ability": "^3.2.0",
     "@types/jest": "^25.1.4",
-    "codecov": "^3.6.5",
     "husky": "^4.2.3",
     "is-ci": "^2.0.0",
     "jest": "^25.1.0",
@@ -46,7 +29,7 @@
     "objection-2": "npm:objection@2",
     "objection-visibility": "^1.0.0",
     "prettier-standard": "^16.2.1",
-    "role-acl-3": "npm:role-acl@<4.0.0",
+    "role-acl-3": "npm:role-acl@<4",
     "role-acl-4": "npm:role-acl@>=4.3.2",
     "sqlite3": "^4.1.1"
   },
