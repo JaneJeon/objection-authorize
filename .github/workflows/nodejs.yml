@@ -33,7 +33,7 @@ jobs:
         run: npm run lint
 
       - name: Test
-        run: npm test --coverage --ci --runInBand --reporters=default --reporters=jest-junit --forceExit
+        run: npm test -- --coverage --ci --runInBand --reporters=default --reporters=jest-junit --forceExit
       - name: Archive Test Results
         # if: failure()
         uses: actions/upload-artifact@v1
