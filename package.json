@@ -24,7 +24,7 @@
     "jest": "^25.2.7",
     "jest-junit": "^10.0.0",
     "knex": "^0.20.13",
-    "lint-staged": "^10.0.10",
+    "lint-staged": "^10.1.2",
     "objection-1": "npm:objection@1",
     "objection-2": "npm:objection@2",
     "objection-visibility": "^1.0.0",
