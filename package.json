@@ -31,7 +31,7 @@
     "prettier-standard": "^16.3.0",
     "role-acl-3": "npm:role-acl@<4",
     "role-acl-4": "npm:role-acl@>=4.3.2",
-    "sqlite3": "^4.1.1"
+    "sqlite3": "^4.2.0"
   },
   "peerDependencies": {
     "objection": "^1 || ^2"
