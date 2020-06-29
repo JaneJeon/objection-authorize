@@ -22,7 +22,7 @@
     "husky": "^4.2.5",
     "is-ci": "^2.0.0",
     "jest": "^26.0.1",
-    "jest-junit": "^11.0.0",
+    "jest-junit": "^11.0.1",
     "knex": "^0.21.1",
     "lint-staged": "^10.2.11",
     "objection-1": "npm:objection@1",
