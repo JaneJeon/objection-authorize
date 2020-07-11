@@ -19,7 +19,6 @@ jobs:
           command: npm run lint:eslint -- --format junit --output-file reports/eslint/results.xml
       - store_test_results:
           path: reports
-      - slack/notify-on-failure
   test:
     parameters:
       node-version:
@@ -43,8 +42,7 @@ jobs:
 workflows:
   build-and-test:
     jobs:
-      - lint:
-          context: shared-vars
+      - lint
       - test:
           context: shared-vars
           requires:
