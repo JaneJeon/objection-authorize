@@ -1,6 +1,6 @@
 <h1 align="center">Welcome to objection-authorize 👋</h1>
 
-[![GitHub Actions](https://github.com/JaneJeon/objection-authorize/workflows/build/badge.svg)](https://github.com/JaneJeon/objection-authorize/actions)
+[![CircleCI](https://circleci.com/gh/JaneJeon/objection-authorize.svg?style=shield)](https://circleci.com/gh/JaneJeon/objection-authorize)
 [![Coverage](https://codecov.io/gh/JaneJeon/objection-authorize/branch/master/graph/badge.svg)](https://codecov.io/gh/JaneJeon/objection-authorize)
 [![NPM](https://img.shields.io/npm/v/objection-authorize)](https://www.npmjs.com/package/objection-authorize)
 [![Downloads](https://img.shields.io/npm/dt/objection-authorize)](https://www.npmjs.com/package/objection-authorize)
@@ -72,18 +72,9 @@ Note that the method must be called _before_ any insert/patch/update/delete call
 const post = await Post.query()
   .authorize(user, resource, opts)
   .insertAndFetch({ title: 'hello!' }) // authorize a POST request
-await Post.query()
-  .authorize(user, resource, opts)
-  .findById(1) // authorize a GET request
-await post
-  .$query()
-  .authorize(user, resource, opts)
-  .patch(body)
-  .returning('*') // authorize a PATCH request
-await post
-  .$query()
-  .authorize(user, resource, opts)
-  .delete() // authorize a DELETE request
+await Post.query().authorize(user, resource, opts).findById(1) // authorize a GET request
+await post.$query().authorize(user, resource, opts).patch(body).returning('*') // authorize a PATCH request
+await post.$query().authorize(user, resource, opts).delete() // authorize a DELETE request
 // it's THAT simple!
 ```
 
@@ -125,10 +116,7 @@ For `role-acl`, just define the acl as you normally would. Note that you're mean
 const RoleAcl = require('role-acl')
 const acl = new RoleAcl(grants) // if you have a grants object, or
 const acl = new RoleAcl()
-acl
-  .grant('user')
-  .execute('create')
-  .on('Video') // just chain it as usual
+acl.grant('user').execute('create').on('Video') // just chain it as usual
 ```
 
 ### @casl/ability
@@ -142,7 +130,7 @@ So you might define your ability like this (and it doesn't matter if you use `Ab
 ```js
 const { AbilityBuilder } = require('@casl/ability')
 
-function acl (user, resource, action, body, opts) {
+function acl(user, resource, action, body, opts) {
   return AbilityBuilder.define((allow, forbid) => {
     if (user.isAdmin()) {
       allow('manage', 'all')
@@ -156,7 +144,7 @@ function acl (user, resource, action, body, opts) {
 If you want to cut down on the time it takes to check access, one thing you might want to do is to use the `resource` parameter to ONLY define rules relevant to that resource:
 
 ```js
-function acl (user, resource, action, body, opts) {
+function acl(user, resource, action, body, opts) {
   return AbilityBuilder.define((allow, forbid) => {
     switch (resource.constructor.name) {
       case 'User':
@@ -322,9 +310,7 @@ app
   // for this request, you might want to show the email only if the user is requesting itself
   .get('/users/:username', async (req, res) => {
     const username = req.params.username.toLowerCase()
-    const user = await User.query()
-      .authorize(req.user)
-      .findOne({ username })
+    const user = await User.query().authorize(req.user).findOne({ username })
 
     res.send(user)
   })
@@ -348,10 +334,7 @@ app
     // Note that if we were to just call User.query().patchAndFetchById() and skip resource,
     // then the requester would be able to modify any user before we can even authorize them!
     let user = await User.query().findOne({ username })
-    user = await user
-      .$query()
-      .authorize(req.user)
-      .patchAndFetch(req.body)
+    user = await user.$query().authorize(req.user).patchAndFetch(req.body)
 
     res.send(user)
   })

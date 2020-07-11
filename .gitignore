@@ -77,4 +77,4 @@ sw.*
 test.db
 
 # I only use junit reporter for circleci
-junit.xml
+reports/

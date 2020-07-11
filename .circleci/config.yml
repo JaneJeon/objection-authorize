@@ -1,0 +1,55 @@
+version: 2.1
+
+orbs:
+  node: circleci/node@3
+  slack: circleci/slack@3
+
+jobs:
+  lint:
+    executor:
+      name: node/default
+    steps:
+      - checkout
+      - node/install-packages
+      - run:
+          name: Lint (Prettier)
+          command: npm run lint:prettier
+      - run:
+          name: Lint (ESLint)
+          command: npm run lint:eslint -- --format junit --output-file reports/eslint/results.xml
+      - store_test_results:
+          path: reports
+      - slack/notify-on-failure
+  test:
+    parameters:
+      node-version:
+        type: string
+    executor:
+      name: node/default
+      tag: << parameters.node-version >>
+    steps:
+      - checkout
+      - node/install-packages
+      - run:
+          name: Test with node.js v<< parameters.node-version >>
+          command: npm test -- --ci --runInBand --forceExit --reporters=default --reporters=jest-junit
+          environment:
+            JEST_JUNIT_OUTPUT_NAME: results.xml
+            JEST_JUNIT_OUTPUT_DIR: reports/<< parameters.node-version >>
+      - store_test_results:
+          path: reports
+      - slack/notify-on-failure
+
+workflows:
+  build-and-test:
+    jobs:
+      - lint
+      - test:
+          context: shared-vars
+          requires:
+            - lint
+          matrix:
+            parameters:
+              node-version:
+                - 12.18.0
+                - 10.19.0

@@ -1,2 +1,5 @@
-'**/*':
-  - prettier-standard --lint
+'*.{yml,js,json,md}':
+  - prettier --write
+
+'*.js':
+  - eslint --fix

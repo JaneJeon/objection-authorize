@@ -1,0 +1,6 @@
+extends: '@janejeon'
+
+overrides:
+  - files: test/utils/*.js
+    env:
+      jest: true

@@ -27,13 +27,17 @@ module.exports = (acl, library = 'role-acl', opts) => {
 
   return Model => {
     class AuthQueryBuilder extends Model.QueryBuilder {
-      get _shouldCheckAccess () {
+      get _shouldCheckAccess() {
         return this.context()._authorize
+      }
+
+      get _resource() {
+        return this.context()._resource
       }
 
       // Wrap the resource to give it all the custom methods & properties
       // defined in the associating model class (e.g. Post, User).
-      set _resource (_resource) {
+      set _resource(_resource) {
         // Wrap the resource only if it's not an instance of a model already.
         // Rather than checking if the resource is instance of the Model base class,
         // we are simply checking that the resource has a $query property.
@@ -45,7 +49,7 @@ module.exports = (acl, library = 'role-acl', opts) => {
       }
 
       // wrappers around acl, querybuilder, and model
-      _checkAccess (action, body) {
+      _checkAccess(action, body) {
         if (!this._shouldCheckAccess) return body
 
         const {
@@ -71,11 +75,11 @@ module.exports = (acl, library = 'role-acl', opts) => {
       }
 
       // convenience helper for insert/update/delete
-      _filterBody (action, body) {
+      _filterBody(action, body) {
         if (!this._shouldCheckAccess) return body
 
         const access = this._checkAccess(action, body)
-        const { _resource: resource } = this.context()
+        const resource = this._resource
 
         // there's no need to cache these fields because this isn't the read access.
         const pickFields = lib.pickFields(access, action, resource)
@@ -92,69 +96,69 @@ module.exports = (acl, library = 'role-acl', opts) => {
 
       // automatically checks if you can create this resource, and if yes,
       // restricts the body object to only the fields they're allowed to set.
-      insert (body) {
+      insert(body) {
         return super.insert(this._filterBody('create', body))
       }
 
-      insertAndFetch (body) {
+      insertAndFetch(body) {
         return super.insertAndFetch(this._filterBody('create', body))
       }
 
-      patch (body) {
+      patch(body) {
         return super.patch(this._filterBody('update', body))
       }
 
-      patchAndFetch (body) {
+      patchAndFetch(body) {
         return super.patchAndFetch(this._filterBody('update', body))
       }
 
       // istanbul ignore next
-      patchAndFetchById (id, body) {
+      patchAndFetchById(id, body) {
         return super.patchAndFetchById(id, this._filterBody('update', body))
       }
 
       // istanbul ignore next
-      update (body) {
+      update(body) {
         return super.update(this._filterBody('update', body))
       }
 
       // istanbul ignore next
-      updateAndFetch (body) {
+      updateAndFetch(body) {
         return super.updateAndFetch(this._filterBody('update', body))
       }
 
       // istanbul ignore next
-      updateAndFetchById (id, body) {
+      updateAndFetchById(id, body) {
         return super.updateAndFetchById(id, this._filterBody('update', body))
       }
 
-      delete (body) {
+      delete(body) {
         this._checkAccess('delete', body)
         return super.delete()
       }
 
       // istanbul ignore next
-      deleteById (id, body) {
+      deleteById(id, body) {
         this._checkAccess('delete', body)
         return super.deleteById(id)
       }
 
       // specify a custom action, which takes precedence over the "default" action.
-      action (_action) {
+      action(_action) {
         this.mergeContext({ _action })
         return this
       }
 
       // result is always an array, so we figure out if we should look at the result
       // as a single object instead by looking at whether .first() was called or not.
-      first () {
+      first() {
         this.mergeContext({ _first: true })
         return super.first()
       }
 
       // THE magic method that schedules the actual authorization logic to be called
       // later down the line when the query is built and is ready to be executed.
-      authorize (user, resource, optOverride) {
+      authorize(user, resource, optOverride) {
         resource = resource || this.context()._instance || {}
         this._resource = resource
         this.mergeContext({
@@ -248,7 +252,7 @@ module.exports = (acl, library = 'role-acl', opts) => {
 
     return class extends Model {
       // filter the model instance directly
-      _filterModel (readAccess) {
+      _filterModel(readAccess) {
         const pickFields = lib.pickFields(readAccess, 'read', this)
         const omitFields = lib.omitFields(readAccess, 'read', this)
 
@@ -259,17 +263,17 @@ module.exports = (acl, library = 'role-acl', opts) => {
       }
 
       // inject instance context
-      $query (trx) {
+      $query(trx) {
         return super.$query(trx).mergeContext({ _instance: this })
       }
 
-      $relatedQuery (relation, trx) {
+      $relatedQuery(relation, trx) {
         return super
           .$relatedQuery(relation, trx)
           .mergeContext({ _instance: this })
       }
 
-      static get QueryBuilder () {
+      static get QueryBuilder() {
         return AuthQueryBuilder
       }
     }

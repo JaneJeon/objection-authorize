@@ -7,11 +7,11 @@ module.exports = (acl, library) => {
       const BaseModel = require('./base-model')(version)
 
       class User extends plugin(acl, library)(BaseModel) {
-        static get tableName () {
+        static get tableName() {
           return `users-${version}-${library}`
         }
 
-        static get hidden () {
+        static get hidden() {
           return ['id']
         }
       }
@@ -47,9 +47,7 @@ module.exports = (acl, library) => {
 
             // you can't create user while logged in
             expect(() =>
-              User.query()
-                .authorize(testUser)
-                .insert(userData)
+              User.query().authorize(testUser).insert(userData)
             ).toThrow()
           })
         })
@@ -57,9 +55,7 @@ module.exports = (acl, library) => {
         describe('R', () => {
           test('works', async () => {
             // shouldn't be able to read email by default
-            let result = await User.query()
-              .authorize()
-              .findById(testUser.id)
+            let result = await User.query().authorize().findById(testUser.id)
             expect(result.email).toBeUndefined()
 
             // but users can read their own emails
@@ -81,10 +77,7 @@ module.exports = (acl, library) => {
           test('works', async () => {
             // an anonymous user shouldn't be able to update registered user's details
             expect(() =>
-              testUser
-                .$query()
-                .authorize(undefined)
-                .patch({ username: 'foo' })
+              testUser.$query().authorize(undefined).patch({ username: 'foo' })
             ).toThrow()
 
             // but a user should be able to update their own details
@@ -134,17 +127,11 @@ module.exports = (acl, library) => {
           test('works', async () => {
             // you shouldn't be able to delete others' accounts
             expect(() =>
-              testUser
-                .$query()
-                .authorize({ role: 'user', id: 2 })
-                .delete()
+              testUser.$query().authorize({ role: 'user', id: 2 }).delete()
             ).toThrow()
 
             // but a user should be able to delete their own account
-            await testUser
-              .$query()
-              .authorize(testUser)
-              .delete()
+            await testUser.$query().authorize(testUser).delete()
           })
 
           test("doesn't break non-authorize calls", async () => {

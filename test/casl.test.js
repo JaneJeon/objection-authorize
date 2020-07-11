@@ -1,7 +1,7 @@
 const pluginTest = require('./utils/plugin-test')
 const { AbilityBuilder } = require('@casl/ability')
 
-function acl (user, resource, action, body, opts) {
+function acl(user, resource, action, body, opts) {
   return AbilityBuilder.define((allow, forbid) => {
     allow('read', 'User')
     forbid('read', 'User', ['email', 'secrethiddenfield'])
