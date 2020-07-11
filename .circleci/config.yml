@@ -43,7 +43,8 @@ jobs:
 workflows:
   build-and-test:
     jobs:
-      - lint
+      - lint:
+          context: shared-vars
       - test:
           context: shared-vars
           requires:
