@@ -40,7 +40,7 @@
     "npm-run-all": "^4.1.5",
     "objection-1": "npm:objection@1",
     "objection-2": "npm:objection@2",
-    "objection-visibility": "^1.0.0",
+    "objection-visibility": "^1.1.0",
     "prettier": "^2.0.5",
     "role-acl-3": "npm:role-acl@<4",
     "role-acl-4": "npm:role-acl@>=4.3.2",
