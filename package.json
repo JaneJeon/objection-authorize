@@ -20,7 +20,7 @@
     "lodash.pick": "^4.4.0"
   },
   "devDependencies": {
-    "@casl/ability": "^3.2.0",
+    "@casl/ability": "^4.1.5",
     "@janejeon/eslint-config": "^1.0.1",
     "@janejeon/prettier-config": "^1.0.4",
     "@types/jest": "^26.0.8",
