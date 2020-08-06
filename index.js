@@ -45,7 +45,7 @@ module.exports = (acl, library = 'role-acl', opts) => {
           _resource = this.modelClass().fromJson(_resource, {
             skipValidation: true
           })
-        this.mergeContext({ _resource })
+        this.context({ _resource })
       }
 
       // wrappers around acl, querybuilder, and model
@@ -145,14 +145,14 @@ module.exports = (acl, library = 'role-acl', opts) => {
 
       // specify a custom action, which takes precedence over the "default" action.
       action(_action) {
-        this.mergeContext({ _action })
+        this.context({ _action })
         return this
       }
 
       // result is always an array, so we figure out if we should look at the result
       // as a single object instead by looking at whether .first() was called or not.
       first() {
-        this.mergeContext({ _first: true })
+        this.context({ _first: true })
         return super.first()
       }
 
@@ -161,7 +161,7 @@ module.exports = (acl, library = 'role-acl', opts) => {
       authorize(user, resource, optOverride) {
         resource = resource || this.context()._instance || {}
         this._resource = resource
-        this.mergeContext({
+        this.context({
           _user: Object.assign({ role: opts.defaultRole }, user),
           _opts: Object.assign({}, opts, optOverride),
           _authorize: true
@@ -177,7 +177,7 @@ module.exports = (acl, library = 'role-acl', opts) => {
               const readAccess = query._checkAccess('read')
 
               // store the read access so that it can be reused after the query.
-              query.mergeContext({ readAccess })
+              query.context({ readAccess })
             }
 
             return result
@@ -209,7 +209,7 @@ module.exports = (acl, library = 'role-acl', opts) => {
               resource = query.modelClass().fromJson(resource, {
                 skipValidation: true
               })
-              query.mergeContext({ _resource: resource })
+              query.context({ _resource: resource })
             }
 
             // after create/update operations, the returning result may be the requester
@@ -227,7 +227,7 @@ module.exports = (acl, library = 'role-acl', opts) => {
               // now we need to re-check read access from the context of the changed user
               if (resultIsUser) {
                 // first, override the user and resource context for _checkAccess
-                query.mergeContext({ _user: result })
+                query.context({ _user: result })
                 // then obtain read access
                 readAccess = query._checkAccess('read')
               }
@@ -264,13 +264,11 @@ module.exports = (acl, library = 'role-acl', opts) => {
 
       // inject instance context
       $query(trx) {
-        return super.$query(trx).mergeContext({ _instance: this })
+        return super.$query(trx).context({ _instance: this })
       }
 
       $relatedQuery(relation, trx) {
-        return super
-          .$relatedQuery(relation, trx)
-          .mergeContext({ _instance: this })
+        return super.$relatedQuery(relation, trx).context({ _instance: this })
       }
 
       static get QueryBuilder() {
