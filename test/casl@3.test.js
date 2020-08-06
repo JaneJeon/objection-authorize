@@ -1,5 +1,5 @@
 const pluginTest = require('./utils/plugin-test')
-const { AbilityBuilder } = require('@casl/ability')
+const { AbilityBuilder } = require('casl-3')
 
 function acl(user, resource, action, body, opts) {
   return AbilityBuilder.define((allow, forbid) => {
@@ -17,4 +17,4 @@ function acl(user, resource, action, body, opts) {
   })
 }
 
-pluginTest(acl, 'casl')
+pluginTest(acl, 'casl@3')

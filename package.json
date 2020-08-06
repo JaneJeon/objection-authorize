@@ -20,7 +20,11 @@
     "lodash.pick": "^4.4.0"
   },
   "devDependencies": {
-    "@casl/ability": "^3.2.0",
+    "role-acl-3": "npm:role-acl@<4",
+    "role-acl-4": "npm:role-acl@>=4.3.2",
+    "casl-3": "npm:@casl/ability@3",
+    "casl-4": "npm:@casl/ability@4",
+    "@casl/ability": "^3",
     "@janejeon/eslint-config": "^1.0.1",
     "@janejeon/prettier-config": "^1.0.4",
     "@types/jest": "^26.0.9",
@@ -41,8 +45,6 @@
     "objection": "^2.2.2",
     "objection-visibility": "^1.1.0",
     "prettier": "^2.0.5",
-    "role-acl-3": "npm:role-acl@<4",
-    "role-acl-4": "npm:role-acl@>=4.3.2",
     "skip-ci": "^1.0.3",
     "sqlite3": "^5.0.0"
   },
