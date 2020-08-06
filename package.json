@@ -7,7 +7,7 @@
   "author": "Jane Jeon <JaneJeon9719@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "test": "jest",
+    "test": "OBJECTION_AUTHORIZE_TEST_MODULE=1 jest",
     "test:watch": "npm test -- --watch",
     "lint": "run-s lint:*",
     "lint:prettier": "prettier --check .",
@@ -24,7 +24,6 @@
     "role-acl-4": "npm:role-acl@>=4.3.2",
     "casl-3": "npm:@casl/ability@3",
     "casl-4": "npm:@casl/ability@4",
-    "@casl/ability": "^3",
     "@janejeon/eslint-config": "^1.0.1",
     "@janejeon/prettier-config": "^1.0.4",
     "@types/jest": "^26.0.9",
