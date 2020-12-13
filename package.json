@@ -7,26 +7,21 @@
   "author": "Jane Jeon <JaneJeon9719@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "test": "OBJECTION_AUTHORIZE_TEST_MODULE=1 jest",
+    "test": "jest",
     "test:watch": "npm test -- --watch",
     "lint": "run-s lint:*",
     "lint:prettier": "prettier --check .",
     "lint:eslint": "eslint ."
   },
-  "prettier": "@janejeon/prettier-config",
   "dependencies": {
-    "http-errors": "^1.8.0",
-    "lodash.omit": "^4.5.0",
-    "lodash.pick": "^4.4.0"
+    "http-errors": "^1.8.0"
   },
   "devDependencies": {
-    "role-acl-3": "npm:role-acl@<4",
-    "role-acl-4": "npm:role-acl@>=4.3.2",
-    "casl-3": "npm:@casl/ability@3",
-    "casl-4": "npm:@casl/ability@4",
     "@janejeon/eslint-config": "^1.0.1",
     "@janejeon/prettier-config": "^1.0.4",
     "@types/jest": "^26.0.9",
+    "casl-3": "npm:@casl/ability@3",
+    "casl-4": "npm:@casl/ability@4",
     "eslint": "^7.6.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-config-standard": "^14.1.1",
@@ -42,14 +37,18 @@
     "lint-staged": "^10.2.11",
     "npm-run-all": "^4.1.5",
     "objection": "^2.2.2",
+    "objection-table-name": "^1.2.2",
     "objection-visibility": "^1.1.0",
     "prettier": "^2.0.5",
+    "role-acl-3": "npm:role-acl@<4",
+    "role-acl-4": "npm:role-acl@>=4.3.2",
     "skip-ci": "^1.0.3",
     "sqlite3": "^5.0.0"
   },
   "peerDependencies": {
     "objection": "^2"
   },
+  "prettier": "@janejeon/prettier-config",
   "keywords": [
     "objection",
     "objection.js",
