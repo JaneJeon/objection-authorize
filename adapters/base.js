@@ -24,8 +24,10 @@ class ACLInterface {
           ? Array.isArray(resource)
             ? resource
             : [resource]
-          : items,
-        inputItems,
+          : items.length
+          ? items
+          : [{}],
+        inputItems: inputItems.length ? inputItems : [{}],
         user,
         action: _action || defaultAction,
         opts,
@@ -36,19 +38,29 @@ class ACLInterface {
   // Yes, I'm still enforcing synchronous ACL checks!!
   checkAccess() {
     if (!this.authorize) return
+    this.items.forEach(item => {
+      this.inputItems.forEach(inputItem => {
+        if (!this._checkIndividualAccess(item, inputItem))
+          throw httpError(
+            this.user.role === this.opts.defaultRole
+              ? this.opts.unauthenticatedErrorCode
+              : this.opts.unauthorizedErrorCode
+          )
+      })
+    })
+
     this._checkAccess()
   }
 
-  _checkAccess() {
-    throw new Error('Do not call the ACL Interface directly!')
-  }
-
-  _stop() {
-    throw httpError(
-      this.user.role === this.opts.defaultRole
-        ? this.opts.unauthenticatedErrorCode
-        : this.opts.unauthorizedErrorCode
-    )
+  /**
+   * This function should be overridden to check a particular item/inputItem pair,
+   * and return true/false depending on whether the check succeeded or not.
+   * @param {Object} item
+   * @param {Object} inputItem
+   * @returns {Boolean}
+   */
+  _checkIndividualAccess(item, inputItem) {
+    throw new Error('Override this method before use!')
   }
 }
 
