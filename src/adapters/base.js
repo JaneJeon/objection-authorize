@@ -16,23 +16,24 @@ class ACLInterface {
       _authorize: authorize
     } = queryContext
 
-    if (authorize) this.authorize = authorize
-    else
-      Object.assign(this, {
-        acl,
-        items: resource
-          ? Array.isArray(resource)
-            ? resource
-            : [resource]
-          : items.length
-          ? items
-          : [{}],
-        inputItems: inputItems.length ? inputItems : [{}],
-        user,
-        action: _action || defaultAction,
-        opts,
-        relation
-      })
+    if (!authorize) return
+
+    Object.assign(this, {
+      acl,
+      items: resource
+        ? Array.isArray(resource)
+          ? resource
+          : [resource]
+        : items.length
+        ? items
+        : [{}],
+      inputItems: inputItems.length ? inputItems : [{}],
+      user,
+      action: _action || defaultAction,
+      opts,
+      relation,
+      authorize
+    })
   }
 
   // Yes, I'm still enforcing synchronous ACL checks!!
@@ -48,8 +49,6 @@ class ACLInterface {
           )
       })
     })
-
-    this._checkAccess()
   }
 
   /**
@@ -60,6 +59,16 @@ class ACLInterface {
    * @returns {Boolean}
    */
   _checkIndividualAccess(item, inputItem) {
+    throw new Error('Override this method before use!')
+  }
+
+  /**
+   * This function should be overridden to return "allowed" fields for a read action,
+   * where we're only checking the model instance (this.items[0]) with the ACL.
+   * NOTE: the returning fields should be in dot notation (e.g. 'field.subfield')
+   * @returns {Array}
+   */
+  get allowedFields() {
     throw new Error('Override this method before use!')
   }
 }

@@ -15,9 +15,7 @@ module.exports = (acl, library = 'role-acl', opts) => {
   const Adapter = require(`./adapters/${library}`)
 
   return Model => {
-    class AuthQueryBuilder extends Model.QueryBuilder {
-      // Learn more about static hooks here:
-      // https://vincit.github.io/objection.js/guide/hooks.html#instance-query-hooks
+    class AuthZQueryBuilder extends Model.QueryBuilder {
       static async beforeInsert(args) {
         await super.beforeInsert(args)
         new Adapter(acl, args, 'create').checkAccess()
@@ -43,15 +41,7 @@ module.exports = (acl, library = 'role-acl', opts) => {
 
       // specify a custom action, which takes precedence over the "default" action.
       action(_action) {
-        this.context({ _action })
-        return this
-      }
-
-      // result is always an array, so we figure out if we should look at the result
-      // as a single object instead by looking at whether .first() was called or not.
-      first() {
-        this.context({ _first: true })
-        return super.first()
+        return this.context({ _action })
       }
 
       // THE magic method that schedules the actual authorization logic to be called
@@ -68,7 +58,27 @@ module.exports = (acl, library = 'role-acl', opts) => {
 
     return class extends Model {
       static get QueryBuilder() {
-        return AuthQueryBuilder
+        return AuthZQueryBuilder
+      }
+
+      // Explicit model instance call to check read access before serializing
+      // instance.authorizeRead(req.user[, action = 'read']).toJSON()
+      authorizeRead(user, action = 'read') {
+        const args = {
+          items: [],
+          inputItems: [],
+          relation: '',
+          context: {
+            _user: user,
+            _opts: opts,
+            _action: action,
+            _resource: this,
+            _authorize: true
+          }
+        }
+
+        const fields = new Adapter(acl, args, action).allowedFields
+        return this.$pick(fields)
       }
     }
   }

@@ -1,5 +1,6 @@
 const ACLInterface = require('./base')
 const objectDeepKeys = require('../utils/object-deep-keys')
+const { permittedFieldsOf } = require('@casl/ability/extra')
 
 class CASL extends ACLInterface {
   _checkIndividualAccess(item, inputItem) {
@@ -17,6 +18,18 @@ class CASL extends ACLInterface {
     return fields.length
       ? ability.can(this.action, item, fields)
       : ability.can(this.action, item)
+  }
+
+  get allowedFields() {
+    const ability = this.acl(
+      this.user,
+      this.items[0],
+      this.action,
+      this.inputItems[0],
+      this.opts
+    )
+
+    return permittedFieldsOf(ability, this.action, this.items[0])
   }
 }
 
