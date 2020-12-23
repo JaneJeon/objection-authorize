@@ -74,7 +74,7 @@ sw.*
 .DS_Store
 
 # test sqlite3 database used for knex
-test.db
+*.sqlite3
 
 # I only use junit reporter for circleci
 reports/
