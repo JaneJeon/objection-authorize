@@ -364,5 +364,5 @@ Give a ⭐️ if this project helped you!
 
 ## 📝 License
 
-Copyright © 2019 [Jane Jeon](https://github.com/JaneJeon).<br />
+Copyright © 2020 [Jane Jeon](https://github.com/JaneJeon).<br />
 This project is [MIT](https://github.com/JaneJeon/objection-authorize/blob/master/LICENSE) licensed.
