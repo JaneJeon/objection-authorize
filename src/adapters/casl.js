@@ -33,10 +33,9 @@ class CASL extends ACLInterface {
 
     // casl on its own does not have any idea what all of the fields available are.
     // Therefore, we must inject them directly by reading them from the actual model instance
-    const x = permittedFieldsOf(ability, this.action, modelInstance, {
+    return permittedFieldsOf(ability, this.action, modelInstance, {
       fieldsFrom: rule => rule.fields || fields
     })
-    return x
   }
 }
 
