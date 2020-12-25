@@ -6,6 +6,7 @@ orbs:
 
 jobs:
   lint:
+    resource_class: small
     executor:
       name: node/default
     steps:
@@ -20,6 +21,7 @@ jobs:
       - store_test_results:
           path: reports
   test:
+    resource_class: small
     parameters:
       node-version:
         type: string
