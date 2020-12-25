@@ -1,6 +1,6 @@
 extends: '@janejeon'
 
 overrides:
-  - files: test/utils/*.js
+  - files: tests/**/*.js
     env:
       jest: true

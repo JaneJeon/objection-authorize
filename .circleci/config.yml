@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  node: circleci/node@3
+  node: circleci/node@4
   slack: circleci/slack@3
 
 jobs:
@@ -23,9 +23,13 @@ jobs:
     parameters:
       node-version:
         type: string
-    executor:
-      name: node/default
-      tag: << parameters.node-version >>
+    docker:
+      - image: cimg/node:<< parameters.node-version >>
+      - image: circleci/postgres:alpine-ram
+        environment: # need to keep this synced with .db.env because circleci is fucking retarded
+          POSTGRES_DB: lynx
+          POSTGRES_USER: knex
+          POSTGRES_HOST_AUTH_METHOD: trust
     steps:
       - checkout
       - node/install-packages
@@ -50,5 +54,5 @@ workflows:
           matrix:
             parameters:
               node-version:
-                - 12.18.0
-                - 10.19.0
+                - lts
+                - current

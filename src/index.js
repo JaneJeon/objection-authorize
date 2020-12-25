@@ -63,14 +63,14 @@ module.exports = (acl, library = 'role-acl', opts) => {
 
       // Explicit model instance call to check read access before serializing
       // instance.authorizeRead(req.user[, action = 'read']).toJSON()
-      authorizeRead(user, action = 'read') {
+      authorizeRead(user, action = 'read', optOverride) {
         const args = {
           items: [],
           inputItems: [],
           relation: '',
           context: {
-            _user: user,
-            _opts: opts,
+            _user: Object.assign({ role: opts.defaultRole }, user),
+            _opts: Object.assign({}, opts, optOverride),
             _action: action,
             _resource: this,
             _authorize: true

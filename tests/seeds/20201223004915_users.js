@@ -8,6 +8,7 @@ exports.seed = function (knex) {
       // Inserts seed entries
       return knex(User.tableName).insert([
         {
+          id: 1,
           username: 'user1',
           password: 'plaintext',
           role: 'user',
@@ -18,6 +19,7 @@ exports.seed = function (knex) {
           }
         },
         {
+          id: 2,
           username: 'user2',
           password: 'plaintext',
           role: 'user',

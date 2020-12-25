@@ -1,0 +1,9 @@
+version: '3'
+
+services:
+  database:
+    image: circleci/postgres:alpine-ram
+    ports:
+      - 5432:5432
+    env_file:
+      - .db.env

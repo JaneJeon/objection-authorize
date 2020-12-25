@@ -21,15 +21,22 @@ class CASL extends ACLInterface {
   }
 
   get allowedFields() {
+    const modelInstance = this.items[0]
+    const fields = objectDeepKeys(modelInstance)
     const ability = this.acl(
       this.user,
-      this.items[0],
+      modelInstance,
       this.action,
       this.inputItems[0],
       this.opts
     )
 
-    return permittedFieldsOf(ability, this.action, this.items[0])
+    // casl on its own does not have any idea what all of the fields available are.
+    // Therefore, we must inject them directly by reading them from the actual model instance
+    const x = permittedFieldsOf(ability, this.action, modelInstance, {
+      fieldsFrom: rule => rule.fields || fields
+    })
+    return x
   }
 }
 

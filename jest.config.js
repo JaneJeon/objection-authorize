@@ -1,5 +1,3 @@
-process.env.OBJECTION_AUTHORIZE_TEST_MODULE = 1
-
 module.exports = {
   coverageThreshold: {
     global: {
@@ -8,5 +6,6 @@ module.exports = {
   },
   errorOnDeprecated: true,
   notify: true,
-  testPathIgnorePatterns: ['node_modules', 'tests/templates']
+  globalSetup: './tests/utils/setup-db.js',
+  globalTeardown: './tests/utils/teardown-db.js'
 }

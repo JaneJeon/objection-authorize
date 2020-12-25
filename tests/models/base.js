@@ -1,10 +1,9 @@
 const { Model } = require('objection')
-const visibility = require('objection-visibility').default
 const tableName = require('objection-table-name')()
 
-Model.knex(require('knex')(require('../knexfile')))
+Model.knex(require('../utils/knex'))
 
-class BaseModel extends tableName(visibility(Model)) {
+class BaseModel extends tableName(Model) {
   static get modelPaths() {
     return [__dirname]
   }

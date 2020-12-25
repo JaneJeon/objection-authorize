@@ -21,8 +21,7 @@
     "@janejeon/eslint-config": "^1.0.1",
     "@janejeon/prettier-config": "^1.0.4",
     "@types/jest": "^26.0.19",
-    "casl-3": "npm:@casl/ability@3",
-    "casl-4": "npm:@casl/ability@4",
+    "dotenv": "^8.2.0",
     "eslint": "^7.16.0",
     "eslint-config-prettier": "^7.1.0",
     "eslint-config-standard": "^16.0.2",
@@ -39,12 +38,9 @@
     "npm-run-all": "^4.1.5",
     "objection": "2.2.3",
     "objection-table-name": "^1.2.2",
-    "objection-visibility": "^1.1.0",
+    "pg": "^8.5.1",
     "prettier": "^2.2.1",
-    "role-acl-3": "npm:role-acl@<4",
-    "role-acl-4": "npm:role-acl@>=4.3.2",
-    "skip-ci": "^1.0.3",
-    "sqlite3": "^5.0.0"
+    "skip-ci": "^1.0.3"
   },
   "peerDependencies": {
     "objection": "^2.2.3"
