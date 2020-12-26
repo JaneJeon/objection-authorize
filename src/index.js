@@ -1,3 +1,5 @@
+const pick = require('lodash.pick')
+
 module.exports = (acl, library = 'role-acl', opts) => {
   if (!acl || typeof library === 'object') {
     throw new Error(
@@ -78,7 +80,11 @@ module.exports = (acl, library = 'role-acl', opts) => {
         }
 
         const fields = new Adapter(acl, args, action).allowedFields
-        return this.$pick(fields)
+
+        // using lodash's implementation of pick instead of "internal" Objection.js one
+        // because the ORM's implementation is absolute shit and buggy as fuck:
+        // https://git.io/JLMsm
+        return pick(this.toJSON(), fields)
       }
     }
   }
