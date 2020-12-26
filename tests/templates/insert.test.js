@@ -12,7 +12,7 @@ describe.each(ACLs)('Insert queries (%s)', (library, acl) => {
     await User.query().authorize().insert({ id: 3 })
 
     // can't create user while logged in
-    expect(
+    await expect(
       User.query().authorize({ id: 4, role: 'user' }).insert({ id: 5 })
     ).rejects.toThrow()
   })

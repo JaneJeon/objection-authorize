@@ -1,5 +1,6 @@
 const ACLInterface = require('./base')
 const objectDeepKeys = require('../utils/object-deep-keys')
+const { subject } = require('@casl/ability')
 const { permittedFieldsOf } = require('@casl/ability/extra')
 
 class CASL extends ACLInterface {
@@ -15,9 +16,12 @@ class CASL extends ACLInterface {
     // normally this would be overkill but this covers cases where you're somehow
     // checking ACL on deep, nested fields.
     const fields = objectDeepKeys(inputItem)
-    return fields.length
-      ? ability.can(this.action, item, fields)
-      : ability.can(this.action, item)
+    const itemClass = subject(this.ModelClass.name, item)
+    if (fields.length) {
+      for (let i = 0; i < fields.length; i++)
+        if (ability.cannot(this.action, itemClass, fields[i])) return false
+      return true
+    } else return ability.can(this.action, itemClass)
   }
 
   get allowedFields() {

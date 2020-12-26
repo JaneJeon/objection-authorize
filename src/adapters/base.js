@@ -7,7 +7,7 @@ class ACLInterface {
     if (!defaultAction)
       throw new Error('ACLInterface: missing input `defaultAction`')
 
-    const { items, inputItems, relation, context: queryContext } = args
+    let { items, inputItems, relation, context: queryContext } = args
     const {
       _user: user,
       _opts: opts,
@@ -19,21 +19,24 @@ class ACLInterface {
 
     if (!authorize) return
 
+    if (resource) {
+      const resourceList = Array.isArray(resource) ? resource : [resource]
+      // just to make sure, wrap every resource in class
+      items = resourceList.map(resource =>
+        resource instanceof ModelClass ? resource : new ModelClass(resource)
+      )
+    } else if (!items.length) items = [new ModelClass()]
+
     Object.assign(this, {
       acl,
-      items: resource
-        ? Array.isArray(resource)
-          ? resource
-          : [resource]
-        : items.length
-        ? items
-        : [new ModelClass()],
+      items,
       inputItems: inputItems.length ? inputItems : [new ModelClass()],
       user,
       action: _action || defaultAction,
       opts,
       relation,
-      authorize
+      authorize,
+      ModelClass
     })
   }
 
