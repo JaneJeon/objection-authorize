@@ -1,8 +1,8 @@
-require('../utils/trxify-tests')
+require('./utils/trxify-tests')
 
-const ACLs = require('../acls')
-const BaseUser = require('../models/user')
-const authorizePlugin = require('../../src')
+const ACLs = require('./acls')
+const BaseUser = require('./models/user')
+const authorizePlugin = require('../src')
 
 describe.each(ACLs)('Insert queries (%s)', (library, acl) => {
   class User extends authorizePlugin(acl, library)(BaseUser) {}
