@@ -5,7 +5,7 @@ const BaseModel = require('../models/base')
 let afterDone
 
 // Initiate transaction
-beforeEach(function (done) {
+beforeEach(done => {
   knex
     .transaction(function (newtrx) {
       BaseModel.knex(newtrx)
@@ -18,7 +18,11 @@ beforeEach(function (done) {
 })
 
 // Rollback transaction
-afterEach(function (done) {
+afterEach(done => {
   afterDone = done
   BaseModel.knex().rollback()
+})
+
+afterAll(async () => {
+  await knex.destroy()
 })
