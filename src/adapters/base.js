@@ -23,7 +23,9 @@ class ACLInterface {
       const resourceList = Array.isArray(resource) ? resource : [resource]
       // just to make sure, wrap every resource in class
       items = resourceList.map(resource =>
-        resource instanceof ModelClass ? resource : new ModelClass(resource)
+        resource instanceof ModelClass
+          ? resource
+          : ModelClass.fromJson(resource, { skipValidation: true })
       )
     } else if (!items.length) items = [new ModelClass()]
 

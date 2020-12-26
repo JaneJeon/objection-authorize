@@ -1,5 +1,14 @@
 const pick = require('lodash.pick')
 
+async function fillResourceContext(args) {
+  if (!args.context._fetchResourceContextFromDB) return
+
+  const OGValue = args.context._authorize
+  args.context._authorize = false
+  args.context._resource = await args.asFindQuery()
+  args.context._authorize = OGValue
+}
+
 module.exports = (acl, library = 'role-acl', opts) => {
   if (!acl || typeof library === 'object') {
     throw new Error(
@@ -59,15 +68,13 @@ module.exports = (acl, library = 'role-acl', opts) => {
 
       static async beforeUpdate(args) {
         await super.beforeUpdate(args)
-        if (args.context._fetchResourceContextFromDB)
-          args.context.items = await args.asFindQuery()
+        await fillResourceContext(args)
         new Adapter(acl, args, 'update').checkAccess()
       }
 
       static async beforeDelete(args) {
         await super.beforeDelete(args)
-        if (args.context._fetchResourceContextFromDB)
-          args.context.items = await args.asFindQuery()
+        await fillResourceContext(args)
         new Adapter(acl, args, 'delete').checkAccess()
       }
 
