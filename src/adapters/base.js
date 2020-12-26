@@ -13,7 +13,8 @@ class ACLInterface {
       _opts: opts,
       _action,
       _resource: resource,
-      _authorize: authorize
+      _authorize: authorize,
+      _class: ModelClass
     } = queryContext
 
     if (!authorize) return
@@ -26,8 +27,8 @@ class ACLInterface {
           : [resource]
         : items.length
         ? items
-        : [{}],
-      inputItems: inputItems.length ? inputItems : [{}],
+        : [new ModelClass()],
+      inputItems: inputItems.length ? inputItems : [new ModelClass()],
       user,
       action: _action || defaultAction,
       opts,

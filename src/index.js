@@ -18,29 +18,6 @@ module.exports = (acl, library = 'role-acl', opts) => {
 
   return Model => {
     class AuthZQueryBuilder extends Model.QueryBuilder {
-      static async beforeInsert(args) {
-        await super.beforeInsert(args)
-        new Adapter(acl, args, 'create').checkAccess()
-      }
-
-      static async beforeUpdate(args) {
-        await super.beforeUpdate(args)
-
-        // TODO: PUT support with asFindQuery
-        // is there a way to do this optionally?
-        new Adapter(acl, args, 'update').checkAccess()
-      }
-
-      static async beforeDelete(args) {
-        await super.beforeDelete(args)
-        new Adapter(acl, args, 'delete').checkAccess()
-      }
-
-      static async beforeFind(args) {
-        await super.beforeFind(args)
-        new Adapter(acl, args, 'read').checkAccess()
-      }
-
       // specify a custom action, which takes precedence over the "default" action.
       action(_action) {
         return this.context({ _action })
@@ -52,8 +29,15 @@ module.exports = (acl, library = 'role-acl', opts) => {
         return this.context({
           _user: Object.assign({ role: opts.defaultRole }, user),
           _opts: Object.assign({}, opts, optOverride),
-          _resource: resource || this.context()._instance || {},
+          _resource: resource,
+          _class: this.modelClass(),
           _authorize: true
+        })
+      }
+
+      fetchResourceContextFromDB() {
+        return this.context({
+          _fetchResourceContextFromDB: true
         })
       }
     }
@@ -61,6 +45,30 @@ module.exports = (acl, library = 'role-acl', opts) => {
     return class extends Model {
       static get QueryBuilder() {
         return AuthZQueryBuilder
+      }
+
+      static async beforeInsert(args) {
+        await super.beforeInsert(args)
+        new Adapter(acl, args, 'create').checkAccess()
+      }
+
+      static async beforeFind(args) {
+        await super.beforeFind(args)
+        new Adapter(acl, args, 'read').checkAccess()
+      }
+
+      static async beforeUpdate(args) {
+        await super.beforeUpdate(args)
+        if (args.context._fetchResourceContextFromDB)
+          args.context.items = await args.asFindQuery()
+        new Adapter(acl, args, 'update').checkAccess()
+      }
+
+      static async beforeDelete(args) {
+        await super.beforeDelete(args)
+        if (args.context._fetchResourceContextFromDB)
+          args.context.items = await args.asFindQuery()
+        new Adapter(acl, args, 'delete').checkAccess()
       }
 
       // Explicit model instance call to check read access before serializing
@@ -75,6 +83,7 @@ module.exports = (acl, library = 'role-acl', opts) => {
             _opts: Object.assign({}, opts, optOverride),
             _action: action,
             _resource: this,
+            _class: this.constructor,
             _authorize: true
           }
         }
