@@ -7,3 +7,14 @@ services:
       - 5432:5432
     env_file:
       - .db.env
+    restart: unless-stopped
+  pgadmin:
+    # use hostname host.docker.internal to connect instead of localhost
+    container_name: pgadmin_container
+    image: dpage/pgadmin4
+    ports:
+      - 5000:80
+    environment:
+      PGADMIN_DEFAULT_EMAIL: user@example.com
+      PGADMIN_DEFAULT_PASSWORD: password
+    restart: unless-stopped
