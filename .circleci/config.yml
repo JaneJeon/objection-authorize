@@ -29,7 +29,7 @@ jobs:
       - image: cimg/node:<< parameters.node-version >>
       - image: circleci/postgres:alpine-ram
         environment: # need to keep this synced with .db.env because circleci is fucking retarded
-          POSTGRES_DB: lynx
+          POSTGRES_DB: objection-authorize
           POSTGRES_USER: knex
           POSTGRES_HOST_AUTH_METHOD: trust
     steps:
