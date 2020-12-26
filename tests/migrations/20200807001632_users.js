@@ -6,7 +6,7 @@ exports.up = function (knex) {
     table.text('username')
     table.text('password')
     table.text('role')
-    table.json('metadata')
+    table.jsonb('metadata')
   })
 }
 
