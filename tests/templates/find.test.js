@@ -20,10 +20,7 @@ describe.each(ACLs)('Find queries & serialization (%s)', (library, acl) => {
   })
 
   let user1FromDb, user2FromDb
-  const user1FromJson = User.fromJson(
-    { id: 1, role: 'user' },
-    { skipValidation: true }
-  )
+  const user1FromJson = { id: 1, role: 'user' }
   test('read access w/ authenticated user', async () => {
     user1FromDb = await User.query().findById(1).authorize(user1FromJson)
     user2FromDb = await User.query().findById(2).authorize(user1FromJson)
