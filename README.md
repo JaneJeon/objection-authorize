@@ -345,7 +345,7 @@ For a real-life example, see here: https://github.com/JaneJeon/express-objection
 ## Run tests
 
 ```sh
-yarn test
+npm test
 ```
 
 ## Author
