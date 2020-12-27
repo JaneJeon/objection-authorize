@@ -13,17 +13,18 @@ describe('objectDeepKeys', () => {
   })
 
   test('simple objects', () => {
-    expect(objectDeepKeys({ a: 1, b: 2 })).toEqual(['a', 'b'])
+    expect(objectDeepKeys({ a: 1, b: 2 }).sort()).toEqual(['a', 'b'].sort())
   })
 
   test('nested objects', () => {
-    expect(objectDeepKeys({ a: { b: 'c' }, d: 'e' })).toEqual(['d', 'a.b'])
+    expect(objectDeepKeys({ a: { b: 'c' }, d: 'e' }).sort()).toEqual(
+      ['a.b', 'd'].sort()
+    )
   })
 
   test('nested scalars and arrays', () => {
-    expect(objectDeepKeys({ a: { b: [{ c: 'd' }], e: false } })).toEqual([
-      'a.b',
-      'a.e'
-    ])
+    expect(objectDeepKeys({ a: { b: [{ c: 'd' }], e: false } }).sort()).toEqual(
+      ['a.b', 'a.e'].sort()
+    )
   })
 })
