@@ -1,4 +1,5 @@
 const httpError = require('http-errors')
+const objectDiff = require('../utils/object-diff')
 
 class ACLInterface {
   constructor(acl, args, defaultAction) {
@@ -14,7 +15,8 @@ class ACLInterface {
       _action,
       _resource: resource,
       _authorize: authorize,
-      _class: ModelClass
+      _class: ModelClass,
+      _diffInputFromResource: diffInputFromResource
     } = queryContext
 
     if (!authorize) return
@@ -38,7 +40,8 @@ class ACLInterface {
       opts,
       relation,
       authorize,
-      ModelClass
+      ModelClass,
+      diffInputFromResource
     })
   }
 
@@ -47,6 +50,8 @@ class ACLInterface {
     if (!this.authorize) return
     this.items.forEach(item => {
       this.inputItems.forEach(inputItem => {
+        if (this.diffInputFromResource) inputItem = objectDiff(item, inputItem)
+
         if (!this._checkIndividualAccess(item, inputItem))
           throw httpError(
             this.user.role === this.opts.defaultRole

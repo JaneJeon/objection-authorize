@@ -1,20 +1,6 @@
 const objectDiff = require('./object-diff')
 
 describe('objectDiff', () => {
-  test('scalars', () => {
-    expect(objectDiff('a', 'b')).toEqual({})
-    expect(objectDiff(true, true)).toEqual({})
-  })
-
-  // we're being lazy here and NOT comparing arrays!
-  test('arrays', () => {
-    expect(objectDiff(['a', 'b'], ['b', 'c'])).toEqual({})
-  })
-
-  test('mixed types', () => {
-    expect(objectDiff({ a: 1 }, 'b')).toEqual({})
-  })
-
   test('basic objects', () => {
     expect(
       objectDiff(
@@ -37,6 +23,13 @@ describe('objectDiff', () => {
       d: 5,
       e: [true, false]
       // again, if there's a "diff" in array the whole thing's going on the list because idgaf
+    })
+  })
+
+  test('missing properties', () => {
+    expect(objectDiff({ a: 1 }, { a: 1, b: 2 })).toEqual({ b: 2 })
+    expect(objectDiff({ a: 1 }, { a: 1, b: { c: 'd' } })).toEqual({
+      b: { c: 'd' }
     })
   })
 

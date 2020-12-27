@@ -1,5 +1,6 @@
 const pick = require('lodash/pick')
 
+// TODO: @sssss465 I mean like this kind of shit
 async function fillResourceContext(args) {
   if (!args.context._fetchResourceContextFromDB) return
 
@@ -47,6 +48,14 @@ module.exports = (acl, library = 'role-acl', opts) => {
       fetchResourceContextFromDB() {
         return this.context({
           _fetchResourceContextFromDB: true
+        })
+      }
+
+      // used for UPDATE queries where you're passing in the whole object -
+      // so clearly we want to ONLY check ACL for ONLY the parts that changed
+      diffInputFromResource() {
+        return this.context({
+          _diffInputFromResource: true
         })
       }
     }
