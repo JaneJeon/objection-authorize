@@ -20,6 +20,7 @@ describe('objectDeepKeys', () => {
     expect(objectDeepKeys({ a: { b: 'c' }, d: 'e' }).sort()).toEqual(
       ['a.b', 'd'].sort()
     )
+    expect(objectDeepKeys({ a: { b: 'c' } })).toEqual(['a.b'])
   })
 
   test('nested scalars and arrays', () => {
