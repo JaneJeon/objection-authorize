@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "http-errors": "^1.8.0",
-    "lodash.pick": "^4.4.0"
+    "lodash": "^4.17.20"
   },
   "devDependencies": {
     "@casl/ability": "^4.1.6",

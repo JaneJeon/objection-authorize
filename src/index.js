@@ -1,4 +1,4 @@
-const pick = require('lodash.pick')
+const pick = require('lodash/pick')
 
 async function fillResourceContext(args) {
   if (!args.context._fetchResourceContextFromDB) return
