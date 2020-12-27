@@ -13,7 +13,7 @@ describe.each(ACLs)('Update queries (%s)', (library, acl) => {
     await expect(
       User.query()
         .findById(1)
-        .update({ id: 1, metadata: { mutableField: 'hello!' } })
+        .update({ metadata: { mutableField: 'hello!' } })
         .authorize({ id: 2, role: 'user' })
         .fetchResourceContextFromDB()
         .diffInputFromResource()
@@ -22,7 +22,7 @@ describe.each(ACLs)('Update queries (%s)', (library, acl) => {
     // but a user should be able to delete their own account
     await User.query()
       .findById(2)
-      .update({ id: 2, metadata: { mutableField: 'hello!' } })
+      .update({ metadata: { mutableField: 'hello!' } })
       .authorize({ id: 2, role: 'user' })
       .fetchResourceContextFromDB()
       .diffInputFromResource()
@@ -33,7 +33,7 @@ describe.each(ACLs)('Update queries (%s)', (library, acl) => {
     await expect(
       User.query()
         .findById(1)
-        .update({ id: 1, metadata: { mutableField: 'hello!' } })
+        .update({ metadata: { mutableField: 'hello!' } })
         .authorize({ id: 2, role: 'user' }, { id: 1 })
         .diffInputFromResource()
     ).rejects.toThrow()
@@ -49,7 +49,7 @@ describe.each(ACLs)('Update queries (%s)', (library, acl) => {
   test('prevent setting an invalid field', async () => {
     await expect(
       User.query()
-        .updateAndFetchById(1, { id: 1, metadata: { fixedField: 'whoops!' } })
+        .updateAndFetchById(1, { metadata: { fixedField: 'whoops!' } })
         .authorize({ id: 1, role: 'user' }, { id: 1 })
         .diffInputFromResource()
     ).rejects.toThrow()
