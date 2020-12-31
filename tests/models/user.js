@@ -11,7 +11,7 @@ class User extends BaseModel {
         relation: BaseModel.HasManyRelation,
         modelClass: 'pet',
         join: {
-          from: 'persons.id',
+          from: 'users.id',
           to: 'pets.ownerId'
         }
       }

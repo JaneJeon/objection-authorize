@@ -24,9 +24,11 @@ function acl(user, resource, action, body, opts, relation) {
     }
 
     if (relation === 'pets') {
-      //
+      // resource = user, body = pet
+      allow('read', 'Pet', { id: user.id })
+      allow('create', 'Pet', { id: user.id })
     } else if (relation === 'owner') {
-      //
+      // resource = pet, body = user
     }
   })
 }
