@@ -6,7 +6,14 @@ class CASL extends ACLInterface {
   _checkIndividualAccess(item, inputItem) {
     // Check whether the user can perform a particular action
     // NOTE: body is only used for BUILDING the rules, not CHECKING it!
-    const ability = this.acl(this.user, item, this.action, inputItem, this.opts)
+    const ability = this.acl(
+      this.user,
+      item,
+      this.action,
+      inputItem,
+      this.opts,
+      this.relation
+    )
 
     // Now that we don't need to "filter out" wrong inputs,
     // we can simply check all of the attributes it's trying to change.

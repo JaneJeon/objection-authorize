@@ -21,9 +21,15 @@ class ACLInterface {
 
     if (!authorize) return
 
+    // relation support, ho!
+    const InputClass = relation
+      ? ModelClass.getRelations()[relation].relatedModelClass()
+      : ModelClass
+
+    // wrap the resource in model class for consistency;
+    // note that the base [items] are already wrapped in the appropriate model class
     if (resource) {
       const resourceList = Array.isArray(resource) ? resource : [resource]
-      // just to make sure, wrap every resource in class
       items = resourceList.map(resource =>
         resource instanceof ModelClass
           ? resource
@@ -34,23 +40,30 @@ class ACLInterface {
     Object.assign(this, {
       acl,
       items,
-      inputItems: inputItems.length ? inputItems : [new ModelClass()],
+      inputItems: inputItems.length ? inputItems : [new InputClass()],
       user,
       action: _action || defaultAction,
       opts,
       relation,
       authorize,
       ModelClass,
+      InputClass,
       diffInputFromResource
     })
   }
 
-  // Yes, I'm still enforcing synchronous ACL checks!!
+  // Yes, I'm still enforcing *synchronous* ACL checks!!
   checkAccess() {
     if (!this.authorize) return
     this.items.forEach(item => {
       this.inputItems.forEach(inputItem => {
-        if (this.diffInputFromResource) inputItem = objectDiff(item, inputItem)
+        // the base inputItems passed by the ORM are already wrapped in model class;
+        // however, performing this diff operation causes class information to be lost,
+        // so we need to regenerate it by wrapping the diff (which is a plain object) in class
+        if (this.diffInputFromResource)
+          inputItem = this.InputClass.fromJson(objectDiff(item, inputItem), {
+            skipValidation: true
+          })
 
         if (!this._checkIndividualAccess(item, inputItem))
           throw httpError(
