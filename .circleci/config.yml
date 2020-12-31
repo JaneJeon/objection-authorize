@@ -36,7 +36,7 @@ jobs:
       - checkout
       - node/install-packages
       - run:
-          name: Test with node.js v<< parameters.node-version >>
+          name: Test with node.js-<< parameters.node-version >>
           command: npm test -- --ci --runInBand --reporters=default --reporters=jest-junit
           environment:
             JEST_JUNIT_OUTPUT_NAME: results.xml
