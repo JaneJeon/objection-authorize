@@ -1,11 +1,12 @@
 version: 2.1
 
 orbs:
-  node: circleci/node@3
+  node: circleci/node@4
   slack: circleci/slack@3
 
 jobs:
   lint:
+    resource_class: small
     executor:
       name: node/default
     steps:
@@ -20,18 +21,23 @@ jobs:
       - store_test_results:
           path: reports
   test:
+    resource_class: small
     parameters:
       node-version:
         type: string
-    executor:
-      name: node/default
-      tag: << parameters.node-version >>
+    docker:
+      - image: cimg/node:<< parameters.node-version >>
+      - image: circleci/postgres:alpine-ram
+        environment: # need to keep this synced with .db.env because circleci is fucking retarded
+          POSTGRES_DB: objection-authorize
+          POSTGRES_USER: knex
+          POSTGRES_HOST_AUTH_METHOD: trust
     steps:
       - checkout
       - node/install-packages
       - run:
-          name: Test with node.js v<< parameters.node-version >>
-          command: npm test -- --ci --runInBand --forceExit --reporters=default --reporters=jest-junit
+          name: Test with node.js-<< parameters.node-version >>
+          command: npm test -- --ci --runInBand --reporters=default --reporters=jest-junit
           environment:
             JEST_JUNIT_OUTPUT_NAME: results.xml
             JEST_JUNIT_OUTPUT_DIR: reports/jest-node<< parameters.node-version >>
@@ -50,5 +56,5 @@ workflows:
           matrix:
             parameters:
               node-version:
-                - 12.18.0
-                - 10.19.0
+                - lts
+                - current
