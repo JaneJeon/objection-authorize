@@ -1,6 +1,6 @@
 {
   "name": "objection-authorize",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "description": "isomorphic, \"magical\" access control integrated with objection.js 🎉",
   "main": "src/index.js",
   "repository": "JaneJeon/objection-authorize",
@@ -18,33 +18,33 @@
     "lodash": "^4.17.20"
   },
   "devDependencies": {
-    "@casl/ability": "^4.1.6",
-    "@janejeon/eslint-config": "^1.0.1",
+    "@casl/ability": "^5.1.2",
+    "@janejeon/eslint-config": "^1.1.0",
     "@janejeon/prettier-config": "^1.0.4",
-    "@types/jest": "^26.0.19",
+    "@types/jest": "^26.0.20",
     "dotenv": "^8.2.0",
-    "eslint": "^7.16.0",
+    "eslint": "^7.17.0",
     "eslint-config-prettier": "^7.1.0",
     "eslint-config-standard": "^16.0.2",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-prettier": "^3.3.0",
+    "eslint-plugin-prettier": "^3.3.1",
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^5.0.0",
-    "husky": "^4.3.6",
+    "husky": "^4.3.7",
     "jest": "^26.6.3",
     "jest-junit": "^12.0.0",
-    "knex": "^0.21.14",
+    "knex": "^0.21.15",
     "lint-staged": "^10.5.3",
     "npm-run-all": "^4.1.5",
-    "objection": "2",
+    "objection": "^2.2.5",
     "objection-table-name": "^1.2.2",
     "pg": "^8.5.1",
     "prettier": "^2.2.1",
     "skip-ci": "^1.0.3"
   },
   "peerDependencies": {
-    "objection": "^2"
+    "objection": "^2.2.5"
   },
   "prettier": "@janejeon/prettier-config",
   "keywords": [

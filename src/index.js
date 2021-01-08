@@ -60,35 +60,6 @@ module.exports = (acl, library = 'role-acl', opts) => {
       }
     }
 
-    // Need to monkeypatch toFindQuery because it is fucking broken
-    // and koskimas is too high up on his horse and is busy shitting on contributors:
-    // https://github.com/Vincit/objection.js/issues/1855
-    function getOperationClass(modify) {
-      const query = Model.query()
-      let constructor = null
-      // Locally override QueryBuilder#addOperation() in order to extract the
-      // private operation constructor / class:
-      query.addOperation = operation => {
-        constructor = operation.constructor
-      }
-      modify(query)
-      return constructor
-    }
-
-    const InsertOperation = getOperationClass(query => query.insert())
-    const UpdateOperation = getOperationClass(query => query.update())
-    const DeleteOperation = getOperationClass(query => query.delete())
-
-    AuthZQueryBuilder.prototype.toFindQuery = function () {
-      const builder = this.clone()
-      const selector = op =>
-        op.is(InsertOperation) ||
-        op.is(UpdateOperation) ||
-        op.is(DeleteOperation)
-      builder.forEachOperation(selector, op => op.onBuild(builder))
-      return builder.clear(selector)
-    }
-
     return class extends Model {
       static get QueryBuilder() {
         return AuthZQueryBuilder
