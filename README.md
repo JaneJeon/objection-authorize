@@ -240,6 +240,13 @@ This is useful when you have custom actions in your ACL (such as `promote`) for 
 </details>
 
 <details>
+<summary>QueryBuilder.inputItem(inputItem)</summary>
+
+For methods that don't support passing `inputItem(s)` (e.g. `.delete()`) but you still want to set the input item/resource, you can call this method to manually override the value of the resource used by the ACL.
+
+</details>
+
+<details>
 <summary>QueryBuilder.fetchResourceContextFromDB()</summary>
 
 Sometimes, you need to know the values of the resource(s) you're trying to access before you can make an authorization decision. So instead of loading the model instance(s) yourself and running `.$query()` on them, you can chain `.fetchResourceContextFromDB()` to your query and automatically populate the `inputs`/resources that would've been affected by the query.

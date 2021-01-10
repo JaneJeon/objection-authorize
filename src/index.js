@@ -36,6 +36,10 @@ module.exports = (acl, library = 'role-acl', opts) => {
         return this.context({ _action })
       }
 
+      inputItem(_resource) {
+        return this.context({ _resource })
+      }
+
       authorize(user, resource, optOverride) {
         return this.context({
           _user: Object.assign({ role: opts.defaultRole }, user),
