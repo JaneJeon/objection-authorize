@@ -22,9 +22,7 @@ class ACLInterface {
     if (!authorize) return
 
     // relation support, ho!
-    const InputClass = relation
-      ? ModelClass.getRelations()[relation].relatedModelClass()
-      : ModelClass
+    const InputClass = relation ? relation.relatedModelClass : ModelClass
 
     // wrap the resource in model class for consistency;
     // note that the base [items] are already wrapped in the appropriate model class

@@ -145,7 +145,10 @@ You can pass an _optional_ options object as the third parameter during initiali
 const opts = {
   defaultRole: 'anonymous',
   unauthenticatedErrorCode: 401,
-  unauthorizedErrorCode: 403
+  unauthorizedErrorCode: 403,
+  casl: {
+    useInputItemAsResourceForRelation: false
+  }
 }
 ```
 
@@ -169,6 +172,15 @@ Error code thrown when an unauthenticated user is not allowed to access a resour
 <summary>unauthorizedErrorCode</summary>
 
 Error code thrown when an authenticated user is not allowed to access a resource.
+
+</details>
+
+<details>
+<summary>casl.useInputItemAsResourceForRelation</summary>
+
+Normally, the `item` is used as "resource" since that's what the user is acting _on_.
+
+However, for relation queries (e.g. add `Book` to a `Library`), the user is _really_ acting on the `Book`, not the `Library`. For cases like this, you can set this option to `true` in order to use the `inputItem` (`Book`) as "resource" instead of `item` (`Library`) **ONLY** during relation queries.
 
 </details>
 

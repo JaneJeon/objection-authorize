@@ -1,4 +1,5 @@
 const pick = require('lodash/pick')
+const merge = require('lodash/merge')
 
 // TODO: @sssss465 I mean like this kind of shit
 async function fillResourceContext(args) {
@@ -20,21 +21,21 @@ module.exports = (acl, library = 'role-acl', opts) => {
   const defaultOpts = {
     defaultRole: 'anonymous',
     unauthenticatedErrorCode: 401,
-    unauthorizedErrorCode: 403
+    unauthorizedErrorCode: 403,
+    casl: {
+      useInputItemAsResourceForRelation: false
+    }
   }
-  opts = Object.assign(defaultOpts, opts)
+  opts = merge(defaultOpts, opts)
 
   const Adapter = require(`./adapters/${library}`)
 
   return Model => {
     class AuthZQueryBuilder extends Model.QueryBuilder {
-      // specify a custom action, which takes precedence over the "default" action.
       action(_action) {
         return this.context({ _action })
       }
 
-      // THE magic method that schedules the actual authorization logic to be called
-      // later down the line when the query is built and is ready to be executed.
       authorize(user, resource, optOverride) {
         return this.context({
           _user: Object.assign({ role: opts.defaultRole }, user),
@@ -51,8 +52,6 @@ module.exports = (acl, library = 'role-acl', opts) => {
         })
       }
 
-      // used for UPDATE queries where you're passing in the whole object -
-      // so clearly we want to ONLY check ACL for ONLY the parts that changed
       diffInputFromResource() {
         return this.context({
           _diffInputFromResource: true
@@ -87,8 +86,6 @@ module.exports = (acl, library = 'role-acl', opts) => {
         new Adapter(acl, args, 'delete').checkAccess()
       }
 
-      // Explicit model instance call to check read access before serializing
-      // instance.authorizeRead(req.user[, action = 'read']).toJSON()
       authorizeRead(user, action = 'read', optOverride) {
         const args = {
           items: [],
@@ -107,7 +104,7 @@ module.exports = (acl, library = 'role-acl', opts) => {
         const fields = new Adapter(acl, args, action).allowedFields
 
         // using lodash's implementation of pick instead of "internal" Objection.js one
-        // because the ORM's implementation is absolute shit and buggy as fuck:
+        // because the ORM's implementation doesn't support nested JSON:
         // https://git.io/JLMsm
         return pick(this.toJSON(), fields)
       }

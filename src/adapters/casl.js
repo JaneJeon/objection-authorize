@@ -22,11 +22,16 @@ class CASL extends ACLInterface {
     // normally this would be overkill but this covers cases where you're somehow
     // checking ACL on deep, nested fields.
     const fields = objectDeepKeys(inputItem)
+    const resource =
+      this.opts.casl.useInputItemAsResourceForRelation && this.relation
+        ? inputItem
+        : item
+
     if (fields.length) {
       for (let i = 0; i < fields.length; i++)
-        if (ability.cannot(this.action, item, fields[i])) return false
+        if (ability.cannot(this.action, resource, fields[i])) return false
       return true
-    } else return ability.can(this.action, item)
+    } else return ability.can(this.action, resource)
   }
 
   get allowedFields() {
