@@ -7,7 +7,6 @@
 [![install size](https://packagephobia.now.sh/badge?p=objection-authorize)](https://packagephobia.now.sh/result?p=objection-authorize)
 [![Dependencies](https://img.shields.io/david/JaneJeon/objection-authorize)](https://david-dm.org/JaneJeon/objection-authorize)
 [![Known Vulnerabilities](https://snyk.io//test/github/JaneJeon/objection-authorize/badge.svg?targetFile=package.json)](https://snyk.io//test/github/JaneJeon/objection-authorize?targetFile=package.json)
-[![License](https://img.shields.io/npm/l/objection-authorize)](https://github.com/JaneJeon/objection-authorize/blob/master/LICENSE)
 [![Docs](https://img.shields.io/badge/docs-github-blue)](https://janejeon.github.io/objection-authorize)
 [![Prettier code style](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
 
@@ -416,5 +415,5 @@ Give a ⭐️ if this project helped you!
 
 ## 📝 License
 
-Copyright © 2020 [Jane Jeon](https://github.com/JaneJeon).<br />
-This project is [MIT](https://github.com/JaneJeon/objection-authorize/blob/master/LICENSE) licensed.
+Copyright © 2021 [Jane Jeon](https://github.com/JaneJeon).<br />
+This project is [LGPL](https://github.com/JaneJeon/objection-authorize/blob/master/LICENSE) licensed (TL;DR: please contribute back any improvements to this library).
