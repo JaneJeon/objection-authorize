@@ -26,7 +26,7 @@ module.exports = (acl, library = 'role-acl', opts) => {
       useInputItemAsResourceForRelation: false
     }
   }
-  opts = merge(defaultOpts, opts)
+  opts = merge({}, defaultOpts, opts)
 
   const Adapter = require(`./adapters/${library}`)
 
@@ -41,9 +41,11 @@ module.exports = (acl, library = 'role-acl', opts) => {
       }
 
       authorize(user, resource, optOverride) {
+        const _opts = merge({}, opts, optOverride)
+
         return this.context({
-          _user: Object.assign({ role: opts.defaultRole }, user),
-          _opts: Object.assign({}, opts, optOverride),
+          _user: Object.assign({ role: _opts.defaultRole }, user),
+          _opts,
           _resource: resource,
           _class: this.modelClass(),
           _authorize: true
