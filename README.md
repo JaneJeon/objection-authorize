@@ -145,6 +145,7 @@ const opts = {
   defaultRole: 'anonymous',
   unauthenticatedErrorCode: 401,
   unauthorizedErrorCode: 403,
+  castDiffToModelClass: true,
   casl: {
     useInputItemAsResourceForRelation: false
   }
@@ -171,6 +172,19 @@ Error code thrown when an unauthenticated user is not allowed to access a resour
 <summary>unauthorizedErrorCode</summary>
 
 Error code thrown when an authenticated user is not allowed to access a resource.
+
+</details>
+
+<details>
+<summary>castDiffToModelClass</summary>
+
+When you use `.diffInputFromResource()`, the resource and the inputItem are compared and a diff (an object containing the changes) is fed to your access control checker.
+
+Since the diff is produced as a plain object, we need to cast it to the appropriate model class again so that you can access that model's methods and model-specific fields.
+
+However, in some cases (such as when you're doing some bespoke field/value remapping in `Model.$parseJson()`), casting the object to the model class isn't "safe" to do, and the resulting model instance might contain different values from the raw diff object.
+
+If you want to disable it, just set `opts.castDiffToModelClass` to false and the raw diff object will be fed to the access control functions.
 
 </details>
 

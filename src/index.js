@@ -22,6 +22,7 @@ module.exports = (acl, library = 'role-acl', opts) => {
     defaultRole: 'anonymous',
     unauthenticatedErrorCode: 401,
     unauthorizedErrorCode: 403,
+    castDiffToModelClass: true,
     casl: {
       useInputItemAsResourceForRelation: false
     }

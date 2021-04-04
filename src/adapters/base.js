@@ -58,10 +58,13 @@ class ACLInterface {
         // the base inputItems passed by the ORM are already wrapped in model class;
         // however, performing this diff operation causes class information to be lost,
         // so we need to regenerate it by wrapping the diff (which is a plain object) in class
-        if (this.diffInputFromResource)
-          inputItem = this.InputClass.fromJson(objectDiff(item, inputItem), {
-            skipValidation: true
-          })
+        if (this.diffInputFromResource) {
+          inputItem = objectDiff(item, inputItem)
+          if (this.opts.castDiffToModelClass)
+            inputItem = this.InputClass.fromJson(inputItem, {
+              skipValidation: true
+            })
+        }
 
         if (!this._checkIndividualAccess(item, inputItem))
           throw httpError(
