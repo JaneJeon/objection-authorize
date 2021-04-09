@@ -83,7 +83,7 @@ describe('objectDiff', () => {
       objectDiff(
         { date: new Date('1984-04-07') },
         { date: new Date('1984-04-07').toISOString() }
-      ).toEqual({})
-    )
+      )
+    ).toEqual({})
   })
 })
