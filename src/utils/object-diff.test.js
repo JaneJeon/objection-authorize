@@ -77,4 +77,13 @@ describe('objectDiff', () => {
       c: '2'
     })
   })
+
+  test('dates', () => {
+    expect(
+      objectDiff(
+        { date: new Date('1984-04-07') },
+        { date: new Date('1984-04-07').toISOString() }
+      ).toEqual({})
+    )
+  })
 })

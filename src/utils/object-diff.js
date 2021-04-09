@@ -14,11 +14,12 @@ function objectDiff(A, B) {
     if (isObject(B[fieldB])) {
       const subResult = objectDiff(A[fieldB], B[fieldB])
       if (!isEmpty(subResult)) result[fieldB] = subResult
-    } else if (isDate(A) || isDate(B)) {
+    } else if (isDate(A[fieldB]) || isDate(B[fieldB])) {
       // special case handling for date objects/strings, for two reasons:
       // 1. Javascript Dates aren't serializable into JSON, so they often come as strings
       // 2. Even if you DID pass two dates, you can't directly compare them using ==/===
-      if (+new Date(A) !== +new Date(B)) result[fieldB] = B[fieldB]
+      if (+new Date(A[fieldB]) !== +new Date(B[fieldB]))
+        result[fieldB] = B[fieldB]
     } else {
       // it's a "scalar", so compare B's field as-is.
       // For "object-like" stuff like arrays, it will still be "different".
