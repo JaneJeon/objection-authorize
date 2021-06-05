@@ -23,7 +23,7 @@
     "@janejeon/prettier-config": "^1.0.4",
     "@types/jest": "^26.0.22",
     "dotenv": "^8.2.0",
-    "eslint": "^7.23.0",
+    "eslint": "^7.28.0",
     "eslint-config-prettier": "^8.1.0",
     "eslint-config-standard": "^16.0.2",
     "eslint-plugin-import": "^2.22.1",
