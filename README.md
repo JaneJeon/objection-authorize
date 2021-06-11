@@ -93,6 +93,8 @@ app.put('/posts/:id', (req, res, next) => {
 
 ### 🏠 [Homepage](https://github.com/JaneJeon/objection-authorize)
 
+> Enjoy objection-authorize? Check out my other objection plugins: [objection-hashid](https://github.com/JaneJeon/objection-hashid) and [objection-tablename](https://github.com/JaneJeon/objection-table-name)!
+
 ## Installation
 
 To install the plugin itself:
