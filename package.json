@@ -39,7 +39,7 @@
     "objection": "2.2.15",
     "objection-table-name": "^1.2.5",
     "pg": "^8.5.1",
-    "prettier": "^2.3.1",
+    "prettier": "^2.3.2",
     "skip-ci": "^1.0.4"
   },
   "peerDependencies": {
