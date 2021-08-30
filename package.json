@@ -19,7 +19,7 @@
   },
   "devDependencies": {
     "@casl/ability": "^5.3.1",
-    "@janejeon/eslint-config": "^2.0.2",
+    "@janejeon/eslint-config": "^2.1.0",
     "@janejeon/prettier-config": "^1.0.4",
     "@types/jest": "^27.0.1",
     "dotenv": "^10.0.0",
