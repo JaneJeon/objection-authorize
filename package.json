@@ -6,6 +6,9 @@
   "repository": "JaneJeon/objection-authorize",
   "author": "Jane Jeon <JaneJeon9719@gmail.com>",
   "license": "LGPL-3.0",
+  "files": [
+    "src/"
+  ],
   "scripts": {
     "test": "jest",
     "test:watch": "npm test -- --watch",
