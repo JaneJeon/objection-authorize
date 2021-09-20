@@ -45,7 +45,7 @@ module.exports = (acl, library = 'role-acl', opts) => {
         const _opts = merge({}, opts, optOverride)
 
         return this.context({
-          _user: Object.assign({ role: _opts.defaultRole }, user),
+          _user: merge({ role: _opts.defaultRole }, user),
           _opts,
           _resource: resource,
           _class: this.modelClass(),
@@ -99,8 +99,8 @@ module.exports = (acl, library = 'role-acl', opts) => {
           inputItems: [],
           relation: '',
           context: {
-            _user: Object.assign({ role: opts.defaultRole }, user),
-            _opts: Object.assign({}, opts, optOverride),
+            _user: merge({ role: opts.defaultRole }, user),
+            _opts: merge({}, opts, optOverride),
             _action: action,
             _resource: this,
             _class: this.constructor,

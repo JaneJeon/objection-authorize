@@ -1,5 +1,6 @@
 const httpError = require('http-errors')
 const objectDiff = require('../utils/object-diff')
+const merge = require('lodash/merge')
 
 class ACLInterface {
   constructor(acl, args, defaultAction) {
@@ -35,7 +36,7 @@ class ACLInterface {
       )
     } else if (!items.length) items = [new ModelClass()]
 
-    Object.assign(this, {
+    merge(this, {
       acl,
       items,
       inputItems: inputItems.length ? inputItems : [new InputClass()],
