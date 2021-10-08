@@ -5,12 +5,13 @@
 const isEmpty = require('lodash/isEmpty')
 const isObject = require('./is-object')
 const isDate = require('lodash/isDate')
+const keys = require('lodash/keys')
 
 function objectDiff(A, B) {
   // if types differ, or are "scalars" (including arrays), ignore it
   if (!isObject(A) || !isObject(B)) return B
 
-  return Object.keys(B).reduce((result, fieldB) => {
+  return keys(B).reduce((result, fieldB) => {
     if (isObject(B[fieldB])) {
       const subResult = objectDiff(A[fieldB], B[fieldB])
       if (!isEmpty(subResult)) result[fieldB] = subResult
