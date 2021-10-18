@@ -25,7 +25,8 @@ module.exports = (acl, library = 'role-acl', opts) => {
     castDiffToModelClass: true,
     casl: {
       useInputItemAsResourceForRelation: false
-    }
+    },
+    ignoreFields: []
   }
   opts = merge({}, defaultOpts, opts)
 

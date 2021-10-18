@@ -7,6 +7,8 @@ exports.up = function (knex) {
     table.text('password')
     table.text('role')
     table.jsonb('metadata')
+
+    table.timestamps()
   })
 }
 

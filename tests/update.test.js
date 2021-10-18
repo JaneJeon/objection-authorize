@@ -5,7 +5,9 @@ const BaseUser = require('./models/user')
 const authorizePlugin = require('../src')
 
 describe.each(ACLs)('Update queries (%s)', (library, acl) => {
-  class User extends authorizePlugin(acl, library)(BaseUser) {}
+  class User extends authorizePlugin(acl, library, {
+    ignoreFields: ['created_at', 'updated_at']
+  })(BaseUser) {}
 
   test('restrict access with automatically fetched context', async () => {
     // you shouldn't be able to change a user as someone else...

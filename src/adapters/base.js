@@ -1,6 +1,7 @@
 const httpError = require('http-errors')
 const objectDiff = require('../utils/object-diff')
 const merge = require('lodash/merge')
+const unset = require('lodash/unset')
 
 class ACLInterface {
   constructor(acl, args, defaultAction) {
@@ -66,6 +67,11 @@ class ACLInterface {
               skipValidation: true
             })
         }
+
+        // Remove fields that we want to exclude - `delete` allows us to preserve the class information!
+        this.opts.ignoreFields.forEach(field => {
+          unset(inputItem, field)
+        })
 
         if (!this._checkIndividualAccess(item, inputItem))
           throw httpError(

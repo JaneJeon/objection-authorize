@@ -5,7 +5,9 @@ const BaseUser = require('./models/user')
 const authorizePlugin = require('../src')
 
 describe.each(ACLs)('Insert queries (%s)', (library, acl) => {
-  class User extends authorizePlugin(acl, library)(BaseUser) {}
+  class User extends authorizePlugin(acl, library, {
+    ignoreFields: ['created_at', 'updated_at']
+  })(BaseUser) {}
 
   test('restrict insert query based on their create access', async () => {
     // create user while anonymous

@@ -148,6 +148,7 @@ const opts = {
   unauthenticatedErrorCode: 401,
   unauthorizedErrorCode: 403,
   castDiffToModelClass: true,
+  ignoreFields: [],
   casl: {
     useInputItemAsResourceForRelation: false
   }
@@ -187,6 +188,15 @@ Since the diff is produced as a plain object, we need to cast it to the appropri
 However, in some cases (such as when you're doing some bespoke field/value remapping in `Model.$parseJson()`), casting the object to the model class isn't "safe" to do, and the resulting model instance might contain different values from the raw diff object.
 
 If you want to disable it, just set `opts.castDiffToModelClass` to false and the raw diff object will be fed to the access control functions.
+
+</details>
+
+<details>
+<summary>ignoreFields</summary>
+
+When you automatically modify/include some fields (e.g. automatic timestamps) in your Objection models, as objection-authorize is typically the "last" hook to run before execution, the policies will check for those fields as well.
+
+These allow you to ignore those fields in authorization decisions. Note that you can specify the fields in dot notation as well (e.g. `timestamp.updatedAt`).
 
 </details>
 
