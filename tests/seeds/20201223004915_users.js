@@ -16,7 +16,8 @@ exports.seed = function (knex) {
             fixedField: 'foo',
             mutableField: 'bar',
             hiddenField: 'super secret'
-          }
+          },
+          created_at: new Date()
         },
         {
           id: 2,
@@ -27,7 +28,8 @@ exports.seed = function (knex) {
             fixedField: 'baz',
             mutableField: '???',
             hiddenField: 'super secret 2: electric boogaloo'
-          }
+          },
+          created_at: new Date()
         }
       ])
     })

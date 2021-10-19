@@ -18,4 +18,12 @@ describe.each(ACLs)('Insert queries (%s)', (library, acl) => {
       User.query().authorize({ id: 4, role: 'user' }).insert({ id: 5 })
     ).rejects.toThrow()
   })
+
+  test('prevents inputItems from being affected', async () => {
+    await User.query().authorize().insert({ id: 3 })
+
+    // Make sure created_at was not stripped away
+    const user = await User.query().findById(3)
+    expect(user.created_at).toBeTruthy()
+  })
 })

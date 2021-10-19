@@ -71,4 +71,17 @@ describe.each(ACLs)('Patch queries (%s)', (library, acl) => {
       .patchAndFetchById(1, { metadata: { mutableField: 'hello' } })
       .authorize({ id: 1, role: 'user' }, { id: 1 })
   })
+
+  test('prevent inputItems from being affected', async () => {
+    await User.query()
+      .findById(2)
+      .patch({ metadata: { mutableField: 'hello!' } })
+      .authorize({ id: 2, role: 'user' })
+      .fetchResourceContextFromDB()
+
+    // Make sure created_at was not stripped away
+    const user = await User.query().findById(2)
+    expect(user.created_at).toBeTruthy()
+    expect(user.updated_at).toBeTruthy()
+  })
 })

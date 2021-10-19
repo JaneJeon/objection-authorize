@@ -2,6 +2,7 @@ const httpError = require('http-errors')
 const objectDiff = require('../utils/object-diff')
 const merge = require('lodash/merge')
 const unset = require('lodash/unset')
+const deepCopy = require('lodash/cloneDeep')
 
 class ACLInterface {
   constructor(acl, args, defaultAction) {
@@ -57,6 +58,9 @@ class ACLInterface {
     if (!this.authorize) return
     this.items.forEach(item => {
       this.inputItems.forEach(inputItem => {
+        // First, deep clone inputItem so as to not affect it, otherwise shit like createdAt will be stripped away
+        inputItem = deepCopy(inputItem)
+
         // the base inputItems passed by the ORM are already wrapped in model class;
         // however, performing this diff operation causes class information to be lost,
         // so we need to regenerate it by wrapping the diff (which is a plain object) in class

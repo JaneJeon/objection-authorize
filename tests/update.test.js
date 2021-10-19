@@ -79,4 +79,22 @@ describe.each(ACLs)('Update queries (%s)', (library, acl) => {
       .authorize({ id: 1, role: 'user' }, { id: 1 })
       .diffInputFromResource()
   })
+
+  test('do not modify inputItems', async () => {
+    // eslint-disable-next-line camelcase
+    const created_at = new Date()
+
+    const user = await User.query()
+      .updateAndFetchById(1, {
+        id: 1,
+        metadata: { mutableField: 'hello' },
+        created_at
+      })
+      .authorize({ id: 1, role: 'user' }, { id: 1 })
+      .diffInputFromResource()
+
+    // eslint-disable-next-line camelcase
+    expect(user.created_at === created_at)
+    expect(user.updated_at).toBeTruthy()
+  })
 })
