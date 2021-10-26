@@ -49,6 +49,7 @@ jobs:
         env:
           CACHE_KEY: npm-cache-key-node-v${{ matrix.node-version }}
       - run: npm i
+      - run: docker-compose up -d
       - name: Test
         run: npm test -- --ci --runInBand --reporters=default --reporters=jest-junit
         env:
@@ -59,3 +60,5 @@ jobs:
         if: always() # always run even if the previous step fails
         with:
           report_paths: reports/jest-node*/*.xml
+      - run: docker-compose down
+        if: always()
