@@ -1,11 +1,8 @@
 <h1 align="center">Welcome to objection-authorize 👋</h1>
 
-[![CircleCI](https://circleci.com/gh/JaneJeon/objection-authorize.svg?style=shield)](https://circleci.com/gh/JaneJeon/objection-authorize)
-[![Coverage](https://codecov.io/gh/JaneJeon/objection-authorize/branch/master/graph/badge.svg)](https://codecov.io/gh/JaneJeon/objection-authorize)
+[![CI](https://github.com/JaneJeon/objection-authorize/actions/workflows/ci.yml/badge.svg)](https://github.com/JaneJeon/objection-authorize/actions/workflows/ci.yml)
 [![NPM](https://img.shields.io/npm/v/objection-authorize)](https://www.npmjs.com/package/objection-authorize)
 [![Downloads](https://img.shields.io/npm/dt/objection-authorize)](https://www.npmjs.com/package/objection-authorize)
-[![Dependencies](https://img.shields.io/david/JaneJeon/objection-authorize)](https://david-dm.org/JaneJeon/objection-authorize)
-[![Known Vulnerabilities](https://snyk.io//test/github/JaneJeon/objection-authorize/badge.svg?targetFile=package.json)](https://snyk.io//test/github/JaneJeon/objection-authorize?targetFile=package.json)
 [![Docs](https://img.shields.io/badge/docs-github-blue)](https://janejeon.github.io/objection-authorize)
 [![Prettier code style](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
 
