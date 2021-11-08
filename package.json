@@ -29,7 +29,7 @@
     "lint-staged": "11.2.6",
     "node-notifier": "^10.0.0",
     "npm-run-all": "^4.1.5",
-    "objection": "2.2.17",
+    "objection": "2.2.18",
     "objection-table-name": "^1.2.5",
     "pg": "^8.7.1",
     "skip-ci": "^1.0.4"
