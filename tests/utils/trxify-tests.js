@@ -7,10 +7,13 @@ let afterDone
 // Initiate transaction
 beforeEach(done => {
   knex
-    .transaction(function (newtrx) {
-      BaseModel.knex(newtrx)
-      done()
-    })
+    .transaction(
+      function (newtrx) {
+        BaseModel.knex(newtrx)
+        done()
+      },
+      { doNotRejectOnRollback: false }
+    )
     .catch(function () {
       // call afterEach's done
       afterDone()
