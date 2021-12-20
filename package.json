@@ -1,6 +1,6 @@
 {
   "name": "objection-authorize",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "description": "isomorphic, \"magical\" access control integrated with objection.js 🎉",
   "main": "src/index.js",
   "repository": "JaneJeon/objection-authorize",
