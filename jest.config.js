@@ -7,5 +7,6 @@ module.exports = {
   errorOnDeprecated: true,
   notify: true,
   globalSetup: './tests/utils/setup-db.js',
-  globalTeardown: './tests/utils/teardown-db.js'
+  globalTeardown: './tests/utils/teardown-db.js',
+  setupFilesAfterEnv: ['./tests/utils/trxify-tests.js']
 }

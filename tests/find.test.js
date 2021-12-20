@@ -1,5 +1,3 @@
-require('./utils/trxify-tests')
-
 const ACLs = require('./acls')
 const BaseUser = require('./models/user')
 const authorizePlugin = require('../src')
