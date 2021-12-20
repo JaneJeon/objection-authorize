@@ -25,7 +25,3 @@ afterEach(done => {
   afterDone = done
   BaseModel.knex().rollback()
 })
-
-afterAll(async () => {
-  await knex.destroy()
-})
