@@ -100,12 +100,6 @@ yarn add objection-authorize # or
 npm i objection-authorize --save
 ```
 
-Note that Objection.js v1 support was dropped on the v4 release of this plugin, so if you need support for the previous version of the ORM, use v3 of this plugin!
-
-In addition, please respect the peer dependency version of Objection.js (currently it is 2.2.5 or above) as this plugin has to account for bugfixes in the base ORM!
-
-And you can install [@casl/ability](https://github.com/stalniy/casl) as your authorization library. Note that only `@casl/ability` of version 4 or above is supported.
-
 For now, only `@casl/ability` is supported as the authorization library, but this plugin is written in an implementation-agnostic way so that any AuthZ/ACL library could be implemented as long as the library of choice supports _synchronous_ authorization checks.
 
 ## Changelog
