@@ -36,7 +36,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [12, 14]
+        node-version: [12, 14, 16]
         # https://github.com/actions/setup-node#supported-version-syntax
 
     steps:
@@ -60,5 +60,3 @@ jobs:
         if: always() # always run even if the previous step fails
         with:
           report_paths: reports/jest-node*/*.xml
-      # - run: docker-compose down
-      #   if: always()
