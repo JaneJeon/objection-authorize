@@ -11,8 +11,5 @@ module.exports = {
   },
   seeds: {
     directory: 'tests/seeds'
-  },
-  pool: {
-    min: 0
   }
 }
