@@ -29,7 +29,7 @@ jobs:
     <<: *size
     <<: *params
     docker:
-      - image: cimg/node:<< parameters.node-version >>
+      - image: cimg/node:<< parameters.node-version >> # can't specify both executor and docker at once
       - image: cimg/postgres:14.1
         environment:
           POSTGRES_USER: knex
