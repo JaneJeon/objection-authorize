@@ -6,6 +6,7 @@ module.exports = {
       branches: 80
     }
   },
+  coveragePathIgnorePatterns: ['<rootDir>/node_modules/', '<rootDir>/tests/'],
   errorOnDeprecated: true,
   notify: true,
   globalSetup: './tests/utils/setup-db.js',
