@@ -2,8 +2,10 @@ version: '3'
 
 services:
   database:
-    image: circleci/postgres:alpine-ram
+    image: postgres:13-alpine
     ports:
       - 5432:5432
     env_file:
       - .db.env
+    tmpfs:
+      - /var/lib/postgresql/data
