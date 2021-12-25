@@ -7,6 +7,7 @@ module.exports = {
     }
   },
   coveragePathIgnorePatterns: ['<rootDir>/node_modules/', '<rootDir>/tests/'],
+  reporters: ['default', 'jest-junit'],
   errorOnDeprecated: true,
   notify: true,
   globalSetup: './tests/utils/setup-db.js',
