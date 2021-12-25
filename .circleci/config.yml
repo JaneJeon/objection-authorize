@@ -1,0 +1,65 @@
+version: 2.1
+
+aliases:
+  - &size
+    resource_class: small
+  - &params
+    parameters:
+      node-version:
+        type: string
+
+orbs:
+  node: circleci/node@4
+  slack: circleci/slack@4
+  codecov: codecov/codecov@3
+
+jobs:
+  lint:
+    <<: *size
+    <<: *params
+    executor:
+      name: node/default
+      tag: << parameters.node-version >>
+    steps:
+      - checkout
+      - node/install-packages
+      - run: npm run lint:prettier
+      - run: npm run lint:eslint -- --format junit --output-file reports/eslint/results.xml
+  test:
+    <<: *size
+    <<: *params
+    docker:
+      - image: cimg/node:<< parameters.node-version >>
+      - image: cimg/postgres:14.1
+        environment:
+          POSTGRES_USER: knex
+          POSTGRES_DB: objection-authorize
+    steps:
+      - checkout
+      - node/install-packages
+      - run: npm test -- --ci --coverage # reports automatically generated
+
+workflows:
+  build:
+    jobs:
+      - lint:
+          node-version: lts
+          post-steps:
+            - &retrieve-junit
+              store_test_results:
+                path: reports
+      - test:
+          context: shared-vars
+          requires:
+            - lint
+          matrix:
+            parameters:
+              node-version:
+                - lts
+                - current
+          post-steps:
+            - *retrieve-junit
+            - codecov/upload # don't need token for public repos
+            - slack/notify:
+                event: fail
+                template: basic_fail_1
