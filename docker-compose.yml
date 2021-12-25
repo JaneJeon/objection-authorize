@@ -7,5 +7,5 @@ services:
       - 5432:5432
     env_file:
       - .db.env
-    tmpfs:
-      - /var/lib/postgresql/data
+    # tmpfs:
+    #   - /var/lib/postgresql/data
