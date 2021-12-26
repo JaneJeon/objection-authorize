@@ -9,7 +9,7 @@ aliases:
         type: string
 
 orbs:
-  node: circleci/node@4
+  node: circleci/node@5
   slack: circleci/slack@4
   codecov: codecov/codecov@3
 
