@@ -20,8 +20,6 @@ jobs:
     executor:
       name: node/default
       tag: << parameters.node-version >>
-    environment:
-      NPM_CONFIG_PREFER_OFFLINE: 'true'
     steps:
       - checkout
       - node/install-packages
@@ -30,8 +28,6 @@ jobs:
   test:
     <<: *size
     <<: *params
-    environment:
-      NPM_CONFIG_PREFER_OFFLINE: 'true'
     docker:
       - image: cimg/node:<< parameters.node-version >> # can't specify both executor and docker at once
       - image: cimg/postgres:14.1
