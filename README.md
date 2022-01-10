@@ -432,4 +432,6 @@ Give a ⭐️ if this project helped you!
 ## 📝 License
 
 Copyright © 2022 [Jane Jeon](https://github.com/JaneJeon).<br />
-This project is [LGPL](https://github.com/JaneJeon/objection-authorize/blob/master/LICENSE) licensed (TL;DR: please contribute back any improvements to this library).
+This project is [LGPL](https://github.com/JaneJeon/objection-authorize/blob/master/LICENSE) licensed.
+
+TL;DR: you are free to import and use this library "as-is" in your code, without needing to make your code source-available and license it under the same license as this library; however, if you do change this library, please do contribute back any improvements for this library and this library alone.
