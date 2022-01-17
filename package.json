@@ -21,7 +21,7 @@
     "@casl/ability": "^5.3.1",
     "@janejeon/eslint-config": "^2.2.0",
     "@janejeon/prettier-config": "^1.1.0",
-    "dotenv": "^13.0.0",
+    "dotenv": "^14.0.0",
     "husky": "^4.2.0",
     "jest": "^27.4.5",
     "jest-junit": "^13.0.0",
