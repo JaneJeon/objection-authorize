@@ -1,5 +1,6 @@
 const pick = require('lodash/pick')
 const merge = require('lodash/merge')
+const isString = require('lodash/isString')
 
 // TODO: @sssss465 I mean like this kind of shit
 async function fillResourceContext(args) {
@@ -11,8 +12,8 @@ async function fillResourceContext(args) {
   args.context._authorize = OGValue
 }
 
-module.exports = (acl, library = 'role-acl', opts) => {
-  if (!acl || typeof library === 'object') {
+module.exports = (acl, library, opts) => {
+  if (!acl || !isString(library)) {
     throw new Error(
       "usage: require('objection-authorize')(acl, library: String[, opts: Object])(Model)"
     )

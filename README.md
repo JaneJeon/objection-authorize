@@ -128,6 +128,8 @@ class Post extends authorize(Model) {
 }
 ```
 
+(Again, for now the only supported `library` value is `casl`)
+
 ### Options
 
 You can pass an _optional_ options object as the third parameter during initialization. The default values are as follows:
