@@ -30,7 +30,7 @@ jobs:
     <<: *params
     docker:
       - image: cimg/node:<< parameters.node-version >> # can't specify both executor and docker at once
-      - image: cimg/postgres:14.1
+      - image: cimg/postgres:14.2
         environment:
           POSTGRES_USER: knex
           POSTGRES_DB: objection-authorize
