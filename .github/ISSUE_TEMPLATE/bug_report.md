@@ -14,8 +14,9 @@ assignees: ''
 - [ ] I have read the `QueryBuilder.fetchResourceContextFromDB()` section in the "Methods" section of the docs
 - [ ] I have read the `QueryBuilder.diffInputFromResource()` section in the "Methods" section of the docs
 - [ ] I have read the `QueryBuilder.authorizeRead()` section in the "Methods" section of the docs
+- [ ] I have searched the issues page and found no relevant results
 
-If the answer to your question is in the docs, your issue may be closed and locked.
+If the answer to your question is in the docs, or if the answer to your question is in another issue, your issue may be closed and locked.
 
 **Describe the bug**
 A clear and concise description of what the bug is.
