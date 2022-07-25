@@ -18,7 +18,7 @@
     "lodash": "^4.17.21"
   },
   "devDependencies": {
-    "@casl/ability": "^5.3.1",
+    "@casl/ability": "^6.0.0",
     "@janejeon/eslint-config": "^2.2.0",
     "@janejeon/prettier-config": "^1.1.0",
     "dotenv": "^16.0.0",
